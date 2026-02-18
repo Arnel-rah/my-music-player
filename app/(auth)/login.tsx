@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, TouchableOpacity, TextInput, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ui/ThemedText";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
   const router = useRouter();
@@ -38,33 +38,34 @@ export default function Login() {
   return (
     <View style={styles.container}>
 
-      {/* Fond cyan en haut */}
       <Animated.View style={[topStyle, styles.topBg]}>
         <View style={styles.circle1} />
         <View style={styles.circle2} />
         <View style={styles.circle3} />
 
-        <SafeAreaView>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} className="ml-5">
+        <SafeAreaView style={styles.safeArea}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
-        </SafeAreaView>
 
-        <View className="flex-1 items-center justify-center">
-          <View style={styles.logoOuter}>
-            <View style={styles.logoInner}>
-              <ThemedText variant="title" className="text-white text-3xl">♪</ThemedText>
+          <View style={styles.heroContent}>
+            <View style={styles.logoOuter}>
+              <View style={styles.logoInner}>
+                <ThemedText variant="title" className="text-white text-2xl">♪</ThemedText>
+              </View>
             </View>
+            <ThemedText variant="title" className="text-white text-2xl font-bold mt-3">
+              Welcome back
+            </ThemedText>
+            <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
+              Login to your account to continue
+            </ThemedText>
           </View>
-          <ThemedText variant="title" className="text-white text-3xl font-bold mt-4">
-            Welcome back 
-          </ThemedText>
-          <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
-            Login to your account to continue
-          </ThemedText>
-        </View>
+        </SafeAreaView>
       </Animated.View>
+
       <Animated.View style={[cardStyle, styles.card]}>
+
         <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
           <Ionicons name="mail-outline" size={18} color="#8A9A9D" />
           <TextInput
@@ -93,7 +94,6 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {/* Remember me + Forgot */}
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity onPress={() => setRememberMe(!rememberMe)} className="flex-row items-center gap-2">
             <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
@@ -108,19 +108,16 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {/* Bouton Log in */}
         <TouchableOpacity style={styles.loginBtn} className="w-full rounded-full py-4 items-center mb-6">
           <ThemedText variant="body" className="text-white font-bold text-base">Log in</ThemedText>
         </TouchableOpacity>
 
-        {/* Séparateur */}
         <View className="flex-row items-center gap-3 mb-5">
           <View style={styles.divider} />
           <ThemedText variant="caption" style={{ color: "#8A9A9D" }} className="text-xs">or continue with</ThemedText>
           <View style={styles.divider} />
         </View>
 
-        {/* Icônes sociales */}
         <View className="flex-row justify-center gap-4 mb-6">
           <TouchableOpacity style={styles.socialIcon}>
             <Ionicons name="logo-google" size={22} color="#EA4335" />
@@ -133,10 +130,9 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {/* Sign up */}
         <View className="flex-row justify-center">
           <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>Don't have an account? </ThemedText>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
             <ThemedText variant="caption" className="font-semibold" style={{ color: "#06A0B5" }}>Sign Up</ThemedText>
           </TouchableOpacity>
         </View>
@@ -152,7 +148,16 @@ const styles = StyleSheet.create({
     height: "40%",
     backgroundColor: "#06A0B5",
     overflow: "hidden",
-    paddingBottom: 20,
+  },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  heroContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 16,
   },
   circle1: {
     position: "absolute",
@@ -189,17 +194,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoOuter: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
   },
   logoInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "rgba(255,255,255,0.3)",
     alignItems: "center",
     justifyContent: "center",

@@ -40,38 +40,35 @@ export default function SignUp() {
   return (
     <View style={styles.container}>
 
-      {/* Fond cyan en haut */}
       <Animated.View style={[topStyle, styles.topBg]}>
         <View style={styles.circle1} />
         <View style={styles.circle2} />
         <View style={styles.circle3} />
 
-        <SafeAreaView>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} className="ml-5">
+        <SafeAreaView style={styles.safeArea}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
-        </SafeAreaView>
 
-        <View className="flex-1 items-center justify-center">
-          <View style={styles.logoOuter}>
-            <View style={styles.logoInner}>
-              <ThemedText variant="title" className="text-white text-3xl">♪</ThemedText>
+          <View style={styles.heroContent}>
+            <View style={styles.logoOuter}>
+              <View style={styles.logoInner}>
+                <ThemedText variant="title" className="text-white text-2xl">♪</ThemedText>
+              </View>
             </View>
+            <ThemedText variant="title" className="text-white text-2xl font-bold mt-3">
+              Create account
+            </ThemedText>
+            <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
+              Join Musium today
+            </ThemedText>
           </View>
-          <ThemedText variant="title" className="text-white text-3xl font-bold mt-4">
-            Create account
-          </ThemedText>
-          <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
-            Join Musium today
-          </ThemedText>
-        </View>
+        </SafeAreaView>
       </Animated.View>
 
-      {/* Card flottante */}
       <Animated.View style={[cardStyle, styles.card]}>
         <ScrollView showsVerticalScrollIndicator={false}>
 
-          {/* Nom */}
           <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
             <Ionicons name="person-outline" size={18} color="#8A9A9D" />
             <TextInput
@@ -84,7 +81,6 @@ export default function SignUp() {
             />
           </View>
 
-          {/* Email */}
           <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
             <Ionicons name="mail-outline" size={18} color="#8A9A9D" />
             <TextInput
@@ -98,7 +94,6 @@ export default function SignUp() {
             />
           </View>
 
-          {/* Password */}
           <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
             <Ionicons name="lock-closed-outline" size={18} color="#8A9A9D" />
             <TextInput
@@ -114,7 +109,6 @@ export default function SignUp() {
             </TouchableOpacity>
           </View>
 
-          {/* Confirm password */}
           <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-6 rounded-2xl">
             <Ionicons name="shield-checkmark-outline" size={18} color="#8A9A9D" />
             <TextInput
@@ -130,21 +124,18 @@ export default function SignUp() {
             </TouchableOpacity>
           </View>
 
-          {/* Bouton Create */}
           <TouchableOpacity style={styles.createBtn} className="w-full rounded-full py-4 items-center mb-6">
             <ThemedText variant="body" className="text-white font-bold text-base">
               Create account
             </ThemedText>
           </TouchableOpacity>
 
-          {/* Séparateur */}
           <View className="flex-row items-center gap-3 mb-5">
             <View style={styles.divider} />
             <ThemedText variant="caption" style={{ color: "#8A9A9D" }} className="text-xs">or sign up with</ThemedText>
             <View style={styles.divider} />
           </View>
 
-          {/* Icônes sociales */}
           <View className="flex-row justify-center gap-4 mb-6">
             <TouchableOpacity style={styles.socialIcon}>
               <Ionicons name="logo-google" size={22} color="#EA4335" />
@@ -157,7 +148,6 @@ export default function SignUp() {
             </TouchableOpacity>
           </View>
 
-          {/* Login */}
           <View className="flex-row justify-center pb-6">
             <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>Already have an account? </ThemedText>
             <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
@@ -174,10 +164,19 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#1E1E1E" },
   topBg: {
-    height: "35%",
+    height: "38%",
     backgroundColor: "#06A0B5",
     overflow: "hidden",
-    paddingBottom: 20,
+  },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  heroContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 16,
   },
   circle1: {
     position: "absolute",
@@ -214,17 +213,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoOuter: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
   },
   logoInner: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "rgba(255,255,255,0.3)",
     alignItems: "center",
     justifyContent: "center",
@@ -234,7 +233,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: "70%",
+    height: "67%",
     backgroundColor: "#242424",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
