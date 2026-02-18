@@ -1,15 +1,17 @@
+export const Colors = {
+  primary:    "#00C2CB", 
+  primaryDark:"#1DB1B7",  
+  secondary:  "#44D7DD",  
+  accent:     "#A6F3FF", 
 
-const colors = {
-  turquoise: "#2BA6A4",
-  aqua: "#49C0C5",
-  cyan: "#18B3C1",
-  lightBlue: "#8FD0DA",
-  darkTeal: "#4B6F73",
-  backgroundWhite: "#FFFFFF",
-  backgroundBlack: "#1E1E1E",
-  backgrounndTransparent: "#121111",
-  textWhite: "#FFFFFF",
-  textGray: "#8A9A9D",
-};
+  background: "#1E1E1E",
+  card:       "#446266",
 
-export default colors;
+  white:      "#FFFFFF",
+  gray:       "#8A9A9D",  
+
+  whiteMuted: "rgba(255,255,255,0.87)",
+  bgMuted:    "rgba(30,30,30,0.85)",
+} as const;
+
+export type ColorKey = keyof typeof Colors;

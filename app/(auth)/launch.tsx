@@ -14,7 +14,7 @@ export default function Launch() {
   }, []);
 
   return (
-    <View className="flex-1 bg-black items-center justify-center">
+    <View className="flex-1 bg-background items-center justify-center">
       {/* Logo */}
       <Image
         source={require("@/assets/images/logo.png")}
@@ -23,7 +23,7 @@ export default function Launch() {
       />
 
       {/* App name */}
-      <ThemedText variant="title" className="text-cyan-400 text-2xl mt-4 tracking-widest">
+      <ThemedText variant="title" className="text-primary text-2xl mt-4 tracking-widest">
         musium
       </ThemedText>
     </View>
