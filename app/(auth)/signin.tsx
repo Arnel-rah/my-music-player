@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logoInner: {
-    width: 60,
-    height: 60,
+    width: 44,
+    height: 44,
     borderRadius: 30,
     backgroundColor: "rgba(255,255,255,0.3)",
     alignItems: "center",
