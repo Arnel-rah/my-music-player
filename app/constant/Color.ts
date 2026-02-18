@@ -1,5 +1,4 @@
 
-
 const colors = {
   turquoise: "#2BA6A4",
   aqua: "#49C0C5",
@@ -8,6 +7,7 @@ const colors = {
   darkTeal: "#4B6F73",
   backgroundWhite: "#FFFFFF",
   backgroundBlack: "#1E1E1E",
+  backgrounndTransparent: "#121111",
   textWhite: "#FFFFFF",
   textGray: "#8A9A9D",
 };
