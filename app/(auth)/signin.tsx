@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  Easing,
-} from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ui/ThemedText";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function SocialButton({
   label,
@@ -39,16 +39,19 @@ export default function SignIn() {
   const router = useRouter();
 
   const cardOpacity = useSharedValue(0);
-  const cardY       = useSharedValue(40);
-  const topOpacity  = useSharedValue(0);
+  const cardY = useSharedValue(40);
+  const topOpacity = useSharedValue(0);
 
   useEffect(() => {
-    topOpacity.value  = withTiming(1, { duration: 800 });
+    topOpacity.value = withTiming(1, { duration: 800 });
     cardOpacity.value = withDelay(300, withTiming(1, { duration: 700 }));
-    cardY.value       = withDelay(300, withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }));
+    cardY.value = withDelay(
+      300,
+      withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }),
+    );
   }, []);
 
-  const topStyle  = useAnimatedStyle(() => ({ opacity: topOpacity.value }));
+  const topStyle = useAnimatedStyle(() => ({ opacity: topOpacity.value }));
   const cardStyle = useAnimatedStyle(() => ({
     opacity: cardOpacity.value,
     transform: [{ translateY: cardY.value }],
@@ -56,40 +59,46 @@ export default function SignIn() {
 
   return (
     <View style={styles.container}>
-
-      {/* Fond dégradé cyan en haut */}
       <Animated.View style={[topStyle, styles.topBg]}>
-        {/* Cercles décoratifs */}
         <View style={styles.circle1} />
         <View style={styles.circle2} />
         <View style={styles.circle3} />
 
-        {/* Bouton retour */}
         <SafeAreaView>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} className="ml-5">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+            className="ml-5"
+          >
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </SafeAreaView>
 
-        {/* Logo + titre */}
         <View className="flex-1 items-center justify-center">
           <View style={styles.logoOuter}>
             <View style={styles.logoInner}>
-              <ThemedText variant="title" className="text-white text-3xl">♪</ThemedText>
+              <ThemedText variant="title" className="text-white text-3xl">
+                ♪
+              </ThemedText>
             </View>
           </View>
-          <ThemedText variant="title" className="text-white text-3xl font-bold mt-4">
+          <ThemedText
+            variant="title"
+            className="text-white text-3xl font-bold mt-4"
+          >
             Let's get you in
           </ThemedText>
-          <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
+          <ThemedText
+            variant="caption"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+            className="mt-1"
+          >
             Choose your preferred sign in method
           </ThemedText>
         </View>
       </Animated.View>
 
-      {/* Card flottante */}
       <Animated.View style={[cardStyle, styles.card]}>
-
         <SocialButton
           label="Continue with Google"
           icon={<Ionicons name="logo-google" size={20} color="#EA4335" />}
@@ -103,14 +112,18 @@ export default function SignIn() {
           icon={<Ionicons name="logo-apple" size={20} color="#FFFFFF" />}
         />
 
-        {/* Séparateur */}
         <View className="flex-row items-center gap-3 my-5">
           <View style={styles.divider} />
-          <ThemedText variant="caption" style={{ color: "#8A9A9D" }} className="text-xs tracking-widest">OR</ThemedText>
+          <ThemedText
+            variant="caption"
+            style={{ color: "#8A9A9D" }}
+            className="text-xs tracking-widest"
+          >
+            OR
+          </ThemedText>
           <View style={styles.divider} />
         </View>
 
-        {/* Bouton password */}
         <TouchableOpacity
           onPress={() => router.push("/(auth)/login")}
           style={styles.loginBtn}
@@ -124,12 +137,19 @@ export default function SignIn() {
 
         {/* Sign up */}
         <View className="flex-row justify-center">
-          <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>Don't have an account? </ThemedText>
-          <TouchableOpacity>
-            <ThemedText variant="caption" className="font-semibold" style={{ color: "#06A0B5" }}>Sign Up</ThemedText>
+          <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>
+            Don't have an account?{" "}
+          </ThemedText>
+          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+            <ThemedText
+              variant="caption"
+              className="font-semibold"
+              style={{ color: "#06A0B5" }}
+            >
+              Sign Up
+            </ThemedText>
           </TouchableOpacity>
         </View>
-
       </Animated.View>
     </View>
   );

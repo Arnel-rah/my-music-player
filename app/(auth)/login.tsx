@@ -57,18 +57,14 @@ export default function Login() {
             </View>
           </View>
           <ThemedText variant="title" className="text-white text-3xl font-bold mt-4">
-            Welcome back {email.split("@")[0] || "user"}
+            Welcome back 
           </ThemedText>
           <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
             Login to your account to continue
           </ThemedText>
         </View>
       </Animated.View>
-
-      {/* Card flottante */}
       <Animated.View style={[cardStyle, styles.card]}>
-
-        {/* Email */}
         <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
           <Ionicons name="mail-outline" size={18} color="#8A9A9D" />
           <TextInput
@@ -82,7 +78,6 @@ export default function Login() {
           />
         </View>
 
-        {/* Password */}
         <View style={styles.inputWrapper} className="flex-row items-center px-4 mb-4 rounded-2xl">
           <Ionicons name="lock-closed-outline" size={18} color="#8A9A9D" />
           <TextInput
