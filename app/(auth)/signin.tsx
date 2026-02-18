@@ -45,10 +45,7 @@ export default function SignIn() {
   useEffect(() => {
     topOpacity.value = withTiming(1, { duration: 800 });
     cardOpacity.value = withDelay(300, withTiming(1, { duration: 700 }));
-    cardY.value = withDelay(
-      300,
-      withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }),
-    );
+    cardY.value = withDelay(300, withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }));
   }, []);
 
   const topStyle = useAnimatedStyle(() => ({ opacity: topOpacity.value }));
@@ -64,38 +61,25 @@ export default function SignIn() {
         <View style={styles.circle2} />
         <View style={styles.circle3} />
 
-        <SafeAreaView>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backBtn}
-            className="ml-5"
-          >
+        <SafeAreaView style={styles.safeArea}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
-        </SafeAreaView>
 
-        <View className="flex-1 items-center justify-center">
-          <View style={styles.logoOuter}>
-            <View style={styles.logoInner}>
-              <ThemedText variant="title" className="text-white text-3xl">
-                ♪
-              </ThemedText>
+          <View style={styles.heroContent}>
+            <View style={styles.logoOuter}>
+              <View style={styles.logoInner}>
+                <ThemedText variant="title" className="text-white text-2xl">♪</ThemedText>
+              </View>
             </View>
+            <ThemedText variant="title" className="text-white text-2xl font-bold mt-3">
+              Let's get you in
+            </ThemedText>
+            <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
+              Choose your preferred sign in method
+            </ThemedText>
           </View>
-          <ThemedText
-            variant="title"
-            className="text-white text-3xl font-bold mt-4"
-          >
-            Let's get you in
-          </ThemedText>
-          <ThemedText
-            variant="caption"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-            className="mt-1"
-          >
-            Choose your preferred sign in method
-          </ThemedText>
-        </View>
+        </SafeAreaView>
       </Animated.View>
 
       <Animated.View style={[cardStyle, styles.card]}>
@@ -114,11 +98,7 @@ export default function SignIn() {
 
         <View className="flex-row items-center gap-3 my-5">
           <View style={styles.divider} />
-          <ThemedText
-            variant="caption"
-            style={{ color: "#8A9A9D" }}
-            className="text-xs tracking-widest"
-          >
+          <ThemedText variant="caption" style={{ color: "#8A9A9D" }} className="text-xs tracking-widest">
             OR
           </ThemedText>
           <View style={styles.divider} />
@@ -135,17 +115,12 @@ export default function SignIn() {
           </ThemedText>
         </TouchableOpacity>
 
-        {/* Sign up */}
         <View className="flex-row justify-center">
           <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>
             Don't have an account?{" "}
           </ThemedText>
           <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-            <ThemedText
-              variant="caption"
-              className="font-semibold"
-              style={{ color: "#06A0B5" }}
-            >
+            <ThemedText variant="caption" className="font-semibold" style={{ color: "#06A0B5" }}>
               Sign Up
             </ThemedText>
           </TouchableOpacity>
@@ -156,15 +131,21 @@ export default function SignIn() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#1E1E1E",
-  },
+  container: { flex: 1, backgroundColor: "#1E1E1E" },
   topBg: {
     height: "48%",
     backgroundColor: "#06A0B5",
     overflow: "hidden",
-    paddingBottom: 20,
+  },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  heroContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 16,
   },
   circle1: {
     position: "absolute",
@@ -201,17 +182,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoOuter: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
   },
   logoInner: {
-    width: 44,
-    height: 44,
-    borderRadius: 30,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "rgba(255,255,255,0.3)",
     alignItems: "center",
     justifyContent: "center",
@@ -247,3 +228,4 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 });
+
