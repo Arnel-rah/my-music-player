@@ -1,47 +1,30 @@
 const CLIENT_ID = "ceeaf031";
 const BASE = "https://api.jamendo.com/v3.0";
 
-export interface JamendoTrack {
-  id: string;
-  name: string;
-  duration: number;
-  artist_name: string;
-  album_name: string;
-  album_image: string;
-  audio: string;
-  shareurl: string;
-}
+const getRandomOffset = () => Math.floor(Math.random() * 100);
 
-export interface JamendoAlbum {
-  id: string;
-  name: string;
-  artist_name: string;
-  image: string;
-  releasedate: string;
-}
-
-export const getFeaturedTracks = async (tag?: string): Promise<JamendoTrack[]> => {
+export const getFeaturedTracks = async (tag?: string): Promise<any[]> => {
   const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_total&include=musicinfo${genreFilter}`
+    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_total${genreFilter}&offset=${getRandomOffset()}`
   );
   const data = await res.json();
   return data.results ?? [];
 };
 
-export const getNewAlbums = async (tag?: string): Promise<JamendoAlbum[]> => {
+export const getNewAlbums = async (tag?: string): Promise<any[]> => {
   const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/albums/?client_id=${CLIENT_ID}&format=json&limit=10&orderby=releasedate_desc${genreFilter}`
+    `${BASE}/albums/?client_id=${CLIENT_ID}&format=json&limit=10&orderby=releasedate_desc${genreFilter}&offset=${getRandomOffset()}`
   );
   const data = await res.json();
   return data.results ?? [];
 };
 
-export const getTrendingTracks = async (tag?: string): Promise<JamendoTrack[]> => {
+export const getTrendingTracks = async (tag?: string): Promise<any[]> => {
   const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_week&include=musicinfo${genreFilter}`
+    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_week${genreFilter}&offset=${getRandomOffset()}`
   );
   const data = await res.json();
   return data.results ?? [];

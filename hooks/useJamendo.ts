@@ -1,57 +1,38 @@
-import { useEffect, useState } from "react";
-import {
-  getFeaturedTracks,
-  getTrendingTracks,
-  getNewAlbums,
-  JamendoTrack,
-  JamendoAlbum,
-} from "@/services/jamendo";
+import { useEffect, useState, useCallback } from "react";
+import { getFeaturedTracks, getTrendingTracks, getNewAlbums } from "@/services/jamendo";
 
-/**
- * Hook central pour récupérer les données musicales
- * @param genre - Le genre sélectionné (ex: "Pop", "Jazz") par défaut "All"
- */
 export function useJamendo(genre: string = "All") {
-  const [featured, setFeatured] = useState<JamendoTrack[]>([]);
-  const [trending, setTrending] = useState<JamendoTrack[]>([]);
-  const [albums, setAlbums] = useState<JamendoAlbum[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [trending, setTrending] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshSignal, setRefreshSignal] = useState(0);
+
+  const refetch = useCallback(() => {
+    setRefreshSignal(prev => prev + 1);
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
-      // On active le chargement au début de chaque changement de genre
       setLoading(true);
-      
       try {
-        // On transforme "All" en undefined pour l'API, 
-        // sinon on utilise le nom du genre en minuscule (ex: "Pop" -> "pop")
         const tag = genre === "All" ? undefined : genre.toLowerCase();
-
-        // On lance les appels API en parallèle
         const [f, t, a] = await Promise.all([
           getFeaturedTracks(tag),
           getTrendingTracks(tag),
           getNewAlbums(tag),
         ]);
-
         setFeatured(f);
         setTrending(t);
         setAlbums(a);
       } catch (error) {
-        console.error("Erreur useJamendo:", error);
+        console.error(error);
       } finally {
-        // Une fois terminé, on arrête l'indicateur de chargement
         setLoading(false);
       }
     };
-
     loadData();
-  }, [genre]);
+  }, [genre, refreshSignal]);
 
-  return { 
-    featured, 
-    trending, 
-    albums, 
-    loading 
-  };
+  return { featured, trending, albums, loading, refetch };
 }
