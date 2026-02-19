@@ -20,41 +20,28 @@ export interface JamendoAlbum {
   releasedate: string;
 }
 
-export const getFeaturedTracks = async (): Promise<JamendoTrack[]> => {
+export const getFeaturedTracks = async (tag?: string): Promise<JamendoTrack[]> => {
+  const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_total&include=musicinfo`
+    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_total&include=musicinfo${genreFilter}`
   );
   const data = await res.json();
   return data.results ?? [];
 };
 
-export const searchTracks = async (query: string): Promise<JamendoTrack[]> => {
+export const getNewAlbums = async (tag?: string): Promise<JamendoAlbum[]> => {
+  const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=20&search=${encodeURIComponent(query)}`
+    `${BASE}/albums/?client_id=${CLIENT_ID}&format=json&limit=10&orderby=releasedate_desc${genreFilter}`
   );
   const data = await res.json();
   return data.results ?? [];
 };
 
-export const getTracksByGenre = async (genre: string): Promise<JamendoTrack[]> => {
+export const getTrendingTracks = async (tag?: string): Promise<JamendoTrack[]> => {
+  const genreFilter = tag ? `&tags=${tag}` : "";
   const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&tags=${genre}&boost=popularity_total`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
-
-export const getNewAlbums = async (): Promise<JamendoAlbum[]> => {
-  const res = await fetch(
-    `${BASE}/albums/?client_id=${CLIENT_ID}&format=json&limit=10&orderby=releasedate_desc`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
-
-export const getTrendingTracks = async (): Promise<JamendoTrack[]> => {
-  const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=5&boost=popularity_week&include=musicinfo`
+    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_week&include=musicinfo${genreFilter}`
   );
   const data = await res.json();
   return data.results ?? [];

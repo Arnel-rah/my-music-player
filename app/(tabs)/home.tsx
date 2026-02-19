@@ -18,7 +18,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useHomeData } from "@/hooks/useJamendo";
+import { useJamendo } from "@/hooks/useJamendo";
 
 const { width } = Dimensions.get("window");
 const GRID_ITEM_WIDTH = (width - 50) / 2;
@@ -30,8 +30,7 @@ export default function Home() {
   const router = useRouter();
   const [activeGenre, setActiveGenre] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
-  const { featured, trending, albums, loading } = useHomeData();
-
+const { featured, trending, albums, loading } = useJamendo(GENRES[activeGenre]);
   const handleLogout = async () => {
     setShowMenu(false);
     await logout();

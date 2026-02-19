@@ -7,51 +7,33 @@ import {
   JamendoAlbum,
 } from "@/services/jamendo";
 
-/**
- * Hook central pour récupérer les données musicales
- * @param genre - Le genre sélectionné (ex: "Pop", "Jazz") par défaut "All"
- */
-export function useJamendo(genre: string = "All") {
+export function useHomeData(genre: string = "All") {
   const [featured, setFeatured] = useState<JamendoTrack[]>([]);
   const [trending, setTrending] = useState<JamendoTrack[]>([]);
   const [albums, setAlbums] = useState<JamendoAlbum[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
-      // On active le chargement au début de chaque changement de genre
+    const load = async () => {
       setLoading(true);
-      
       try {
-        // On transforme "All" en undefined pour l'API, 
-        // sinon on utilise le nom du genre en minuscule (ex: "Pop" -> "pop")
         const tag = genre === "All" ? undefined : genre.toLowerCase();
-
-        // On lance les appels API en parallèle
         const [f, t, a] = await Promise.all([
           getFeaturedTracks(tag),
           getTrendingTracks(tag),
           getNewAlbums(tag),
         ]);
-
         setFeatured(f);
         setTrending(t);
         setAlbums(a);
-      } catch (error) {
-        console.error("Erreur useJamendo:", error);
+      } catch (e) {
+        console.error(e);
       } finally {
-        // Une fois terminé, on arrête l'indicateur de chargement
         setLoading(false);
       }
     };
-
-    loadData();
+    load();
   }, [genre]);
 
-  return { 
-    featured, 
-    trending, 
-    albums, 
-    loading 
-  };
+  return { featured, trending, albums, loading };
 }
