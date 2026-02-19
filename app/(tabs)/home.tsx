@@ -1,6 +1,6 @@
+import { useAuthStore } from "@/store/useAuthStore";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import {
   Image,
   ScrollView,
@@ -33,17 +33,16 @@ const RECENT = [
 ];
 
 export default function Home() {
-  const router = useRouter();
+  const { user } = useAuthStore();
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Header */}
         <View className="flex-row items-center justify-between px-5 py-4">
           <View className="flex-row items-center gap-3">
             <Image
-              source={{ uri: "https://picsum.photos/seed/avatar/100/100" }}
+              source={{ uri: user?.avatar ?? "https://picsum.photos/seed/avatar/100/100" }}
               style={styles.avatar}
             />
             <View>
@@ -51,7 +50,7 @@ export default function Home() {
                 Welcome back !
               </ThemedText>
               <ThemedText variant="caption" style={{ color: "#8A9A9D" }}>
-                chandrama
+                {user?.name ?? "Guest"}
               </ThemedText>
             </View>
           </View>
@@ -68,7 +67,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Continue Listening */}
         <View className="px-5 mb-6">
           <ThemedText variant="subtitle" className="text-white font-bold text-xl mb-4">
             Continue Listening
@@ -85,7 +83,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Your Top Mixes */}
         <View className="mb-6">
           <ThemedText variant="subtitle" className="text-white font-bold text-xl mb-4 px-5">
             Your Top Mixes
@@ -107,7 +104,6 @@ export default function Home() {
           </ScrollView>
         </View>
 
-        {/* Based on recent listening */}
         <View className="px-5 mb-8">
           <ThemedText variant="subtitle" className="text-white font-bold text-xl mb-4">
             Based on your recent listening
