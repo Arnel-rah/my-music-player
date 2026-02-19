@@ -11,13 +11,16 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
 
   const cardOpacity = useSharedValue(0);
   const cardY       = useSharedValue(40);
@@ -34,6 +37,20 @@ export default function Login() {
     opacity: cardOpacity.value,
     transform: [{ translateY: cardY.value }],
   }));
+
+  const handleLogin = () => {
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    setError("");
+    login({
+      name: email.split("@")[0],
+      email,
+      avatar: `https://picsum.photos/seed/${email}/100/100`,
+    });
+    router.replace("/(tabs)/home");
+  };
 
   return (
     <View style={styles.container}>
@@ -72,7 +89,7 @@ export default function Login() {
             placeholder="Email"
             placeholderTextColor="#8A9A9D"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(t) => { setEmail(t); setError(""); }}
             keyboardType="email-address"
             autoCapitalize="none"
             style={styles.input}
@@ -85,7 +102,7 @@ export default function Login() {
             placeholder="Password"
             placeholderTextColor="#8A9A9D"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(t) => { setPassword(t); setError(""); }}
             secureTextEntry={!showPassword}
             style={styles.input}
           />
@@ -93,6 +110,12 @@ export default function Login() {
             <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={18} color="#8A9A9D" />
           </TouchableOpacity>
         </View>
+
+        {error ? (
+          <ThemedText variant="caption" style={{ color: "#FF5252" }} className="mb-3 text-center">
+            {error}
+          </ThemedText>
+        ) : null}
 
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity onPress={() => setRememberMe(!rememberMe)} className="flex-row items-center gap-2">
@@ -108,7 +131,11 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.loginBtn} className="w-full rounded-full py-4 items-center mb-6">
+        <TouchableOpacity
+          onPress={handleLogin}
+          style={styles.loginBtn}
+          className="w-full rounded-full py-4 items-center mb-6"
+        >
           <ThemedText variant="body" className="text-white font-bold text-base">Log in</ThemedText>
         </TouchableOpacity>
 
