@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   avatarWrapper: { position: "relative" },
   avatar: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: "#06A0B5" },
   avatarOnline: { position: "absolute", bottom: 0, right: 0, width: 9, height: 9, borderRadius: 5, backgroundColor: "#06A0B5", borderWidth: 1.5, borderColor: "#0D0D0D" },
-  greeting: { color: "#555", fontSize: 9, fontWeight: "700", letterSpacing: 1.2 },
+  greeting: { color: "#ffeeee", fontSize: 9, fontWeight: "700", letterSpacing: 1.2 },
   userName: { color: "#fff", fontSize: 16, fontWeight: "800", marginTop: -1 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 7 },
   iconBtn: { width: 34, height: 34, borderRadius: 10, backgroundColor: "#181818", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#252525" },
