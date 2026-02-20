@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,6 +14,7 @@ import {
   Dimensions,
   Modal,
   ActivityIndicator,
+  RefreshControl, // Importé pour le pull-to-refresh
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -29,8 +30,19 @@ export default function Home() {
   const router = useRouter();
   const [activeGenre, setActiveGenre] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   
-  const { featured, trending, albums, loading } = useHomeData(GENRES[activeGenre]);
+  // On récupère 'refetch' depuis ton hook
+  const { featured, trending, albums, loading, refetch } = useHomeData(GENRES[activeGenre]);
+
+  // Fonction de rafraîchissement
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    if (refetch) {
+      await refetch(); // Relance les appels API
+    }
+    setRefreshing(false);
+  }, [refetch]);
 
   const handleLogout = async () => {
     setShowMenu(false);
@@ -42,6 +54,7 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top + 6 }]}>
         <View style={styles.topRow}>
           <View style={styles.greetingRow}>
@@ -91,10 +104,22 @@ export default function Home() {
         </TouchableOpacity>
       </Modal>
 
-      {loading ? (
+      {/* Main Content with RefreshControl */}
+      {loading && !refreshing ? (
         <View style={styles.loadingContainer}><ActivityIndicator color="#06A0B5" size="large" /></View>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#06A0B5"
+              colors={["#06A0B5"]}
+            />
+          }
+        >
           {hero && (
             <View style={styles.heroSection}>
               <ImageBackground source={{ uri: hero.album_image }} style={styles.hero} imageStyle={{ borderRadius: 24 }}>
@@ -133,6 +158,7 @@ export default function Home() {
   );
 }
 
+// Les styles restent identiques à ton code...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D" },
   headerWrapper: { backgroundColor: "#0D0D0D", paddingBottom: 12 },

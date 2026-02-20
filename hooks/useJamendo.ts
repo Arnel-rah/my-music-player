@@ -1,38 +1,47 @@
 import { useEffect, useState, useCallback } from "react";
-import { getFeaturedTracks, getTrendingTracks, getNewAlbums } from "@/services/jamendo";
+import {
+  getFeaturedTracks,
+  getTrendingTracks,
+  getNewAlbums,
+  getTracksByGenre,
+  JamendoTrack,
+  JamendoAlbum,
+} from "@/services/jamendo";
 
 export function useJamendo(genre: string = "All") {
-  const [featured, setFeatured] = useState<any[]>([]);
-  const [trending, setTrending] = useState<any[]>([]);
-  const [albums, setAlbums] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<JamendoTrack[]>([]);
+  const [trending, setTrending] = useState<JamendoTrack[]>([]);
+  const [albums, setAlbums] = useState<JamendoAlbum[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const refetch = useCallback(() => {
-    setRefreshSignal(prev => prev + 1);
-  }, []);
-
-  useEffect(() => {
-    const loadData = async () => {
+  const load = useCallback(async () => {
+    try {
       setLoading(true);
-      try {
-        const tag = genre === "All" ? undefined : genre.toLowerCase();
+      if (genre === "All") {
         const [f, t, a] = await Promise.all([
-          getFeaturedTracks(tag),
-          getTrendingTracks(tag),
-          getNewAlbums(tag),
+          getFeaturedTracks(),
+          getTrendingTracks(),
+          getNewAlbums(),
         ]);
         setFeatured(f);
         setTrending(t);
         setAlbums(a);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      } else {
+        const tracks = await getTracksByGenre(genre.toLowerCase());
+        setFeatured(tracks);
+        setTrending([]);
+        setAlbums([]);
       }
-    };
-    loadData();
-  }, [genre, refreshSignal]);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [genre]);
 
-  return { featured, trending, albums, loading, refetch };
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return { featured, trending, albums, loading, refetch: load };
 }
