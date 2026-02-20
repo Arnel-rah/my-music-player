@@ -19,6 +19,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useJamendo } from "@/hooks/useJamendo";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import PlayerModal from "@/components/PlayerModal";
 
 const { width } = Dimensions.get("window");
 const GRID_ITEM_WIDTH = (width - 50) / 2;
@@ -28,20 +30,18 @@ export default function Home() {
   const { user, logout } = useAuthStore();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  
+
   const [activeGenre, setActiveGenre] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [playerVisible, setPlayerVisible] = useState(false);
 
-  // On récupère 'refetch' depuis ton hook useJamendo
   const { featured, trending, albums, loading, refetch } = useJamendo(GENRES[activeGenre]);
+  const { playTrack, togglePlay, isPlaying, isLoading, currentTrack, position, duration, seek } = useAudioPlayer();
 
-  // Fonction de rafraîchissement adaptée pour appeler l'API
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (refetch) {
-      await refetch(); // Déclenche le re-chargement des données
-    }
+    if (refetch) await refetch();
     setRefreshing(false);
   }, [refetch]);
 
@@ -51,12 +51,16 @@ export default function Home() {
     router.replace("/(auth)/launch");
   };
 
+  const handlePlay = (track: any) => {
+    playTrack(track);
+    setPlayerVisible(true);
+  };
+
   const hero = featured[0];
 
   return (
     <View style={styles.container}>
 
-      {/* Header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top + 6 }]}>
         <View style={styles.topRow}>
           <View style={styles.greetingRow}>
@@ -98,20 +102,25 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.genreRow}
+        >
           {GENRES.map((g, i) => (
             <TouchableOpacity
               key={g}
               onPress={() => setActiveGenre(i)}
               style={[styles.chip, activeGenre === i && styles.chipActive]}
             >
-              <ThemedText style={[styles.chipText, activeGenre === i && styles.chipTextActive]}>{g}</ThemedText>
+              <ThemedText style={[styles.chipText, activeGenre === i && styles.chipTextActive]}>
+                {g}
+              </ThemedText>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
-      {/* Profile menu */}
       <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
           <View style={styles.menuCard}>
@@ -134,10 +143,6 @@ export default function Home() {
               <Ionicons name="settings-outline" size={18} color="#8A9A9D" />
               <ThemedText style={styles.menuItemText}>Settings</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name="moon-outline" size={18} color="#8A9A9D" />
-              <ThemedText style={styles.menuItemText}>Sleep timer</ThemedText>
-            </TouchableOpacity>
             <View style={styles.menuDivider} />
             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
               <Ionicons name="log-out-outline" size={18} color="#FF5252" />
@@ -147,7 +152,6 @@ export default function Home() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Content */}
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color="#06A0B5" size="large" />
@@ -156,18 +160,12 @@ export default function Home() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 80 + insets.bottom, paddingTop: 16 }}
+          contentContainerStyle={{ paddingBottom: 140 + insets.bottom, paddingTop: 16 }}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#06A0B5"
-              colors={["#06A0B5"]}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#06A0B5" />
           }
         >
 
-          {/* Hero */}
           {hero && (
             <View style={styles.heroSection}>
               <ImageBackground
@@ -186,15 +184,12 @@ export default function Home() {
                   <ThemedText style={styles.heroTitle} numberOfLines={1}>{hero.name}</ThemedText>
                   <ThemedText style={styles.heroSub} numberOfLines={1}>{hero.artist_name}</ThemedText>
                   <View style={styles.heroActions}>
-                    <TouchableOpacity style={styles.heroPlayBtn}>
+                    <TouchableOpacity style={styles.heroPlayBtn} onPress={() => handlePlay(hero)}>
                       <Ionicons name="play" size={15} color="#fff" />
                       <ThemedText style={styles.heroPlayText}>Play now</ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.heroSaveBtn}>
                       <Ionicons name="heart-outline" size={17} color="#06A0B5" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.heroSaveBtn}>
-                      <Ionicons name="ellipsis-horizontal" size={17} color="#8A9A9D" />
                     </TouchableOpacity>
                   </View>
                 </LinearGradient>
@@ -202,7 +197,6 @@ export default function Home() {
             </View>
           )}
 
-          {/* Continue Listening */}
           {featured.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -213,11 +207,26 @@ export default function Home() {
               </View>
               <View style={styles.grid}>
                 {featured.slice(0, 6).map((track) => (
-                  <TouchableOpacity key={track.id} style={styles.gridItem}>
+                  <TouchableOpacity
+                    key={track.id}
+                    style={[
+                      styles.gridItem,
+                      currentTrack?.id === track.id && styles.gridItemActive,
+                    ]}
+                    onPress={() => handlePlay(track)}
+                  >
                     <Image source={{ uri: track.album_image }} style={styles.gridImage} />
                     <ThemedText style={styles.gridTitle} numberOfLines={1}>{track.name}</ThemedText>
                     <View style={styles.gridPlay}>
-                      <Ionicons name="play" size={11} color="#06A0B5" />
+                      {currentTrack?.id === track.id && isLoading ? (
+                        <ActivityIndicator size={11} color="#06A0B5" />
+                      ) : (
+                        <Ionicons
+                          name={currentTrack?.id === track.id && isPlaying ? "pause" : "play"}
+                          size={11}
+                          color="#06A0B5"
+                        />
+                      )}
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -225,7 +234,47 @@ export default function Home() {
             </View>
           )}
 
-          {/* New Albums */}
+          {trending.length > 0 && (
+            <View style={[styles.section, { paddingHorizontal: 0 }]}>
+              <View style={[styles.sectionHeader, { paddingHorizontal: 20 }]}>
+                <ThemedText style={styles.sectionTitle}>Trending this week</ThemedText>
+                <TouchableOpacity>
+                  <ThemedText style={styles.seeAll}>See all</ThemedText>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingLeft: 20, gap: 14, paddingRight: 20 }}
+              >
+                {trending.map((track) => (
+                  <TouchableOpacity
+                    key={track.id}
+                    style={styles.trendingCard}
+                    onPress={() => handlePlay(track)}
+                  >
+                    <Image source={{ uri: track.album_image }} style={styles.trendingImage} />
+                    <LinearGradient
+                      colors={["transparent", "rgba(0,0,0,0.88)"]}
+                      style={styles.trendingGradient}
+                    />
+                    <View style={styles.trendingInfo}>
+                      <ThemedText style={styles.trendingTitle} numberOfLines={1}>{track.name}</ThemedText>
+                      <ThemedText style={styles.trendingArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
+                    </View>
+                    <TouchableOpacity style={styles.trendingPlayBtn} onPress={() => handlePlay(track)}>
+                      <Ionicons
+                        name={currentTrack?.id === track.id && isPlaying ? "pause" : "play"}
+                        size={13}
+                        color="#fff"
+                      />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {albums.length > 0 && (
             <View style={[styles.section, { paddingHorizontal: 0 }]}>
               <View style={[styles.sectionHeader, { paddingHorizontal: 20 }]}>
@@ -242,58 +291,66 @@ export default function Home() {
                 {albums.map((album) => (
                   <TouchableOpacity key={album.id} style={styles.mixCard}>
                     <Image source={{ uri: album.image }} style={styles.mixImage} />
-                    <LinearGradient colors={["transparent", "rgba(0,0,0,0.88)"]} style={styles.mixGradient} />
-                    <View style={styles.mixAccentBar} />
+                    <LinearGradient
+                      colors={["transparent", "rgba(0,0,0,0.88)"]}
+                      style={styles.mixGradient}
+                    />
                     <View style={styles.mixInfo}>
                       <ThemedText style={styles.mixGenre} numberOfLines={1}>{album.artist_name}</ThemedText>
                       <ThemedText style={styles.mixTitle} numberOfLines={1}>{album.name}</ThemedText>
                     </View>
-                    <TouchableOpacity style={styles.mixPlayBtn}>
-                      <Ionicons name="play" size={15} color="#fff" />
-                    </TouchableOpacity>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
           )}
 
-          {/* Trending */}
-          {trending.length > 0 && (
-            <View style={[styles.section, { paddingHorizontal: 0 }]}>
-              <View style={[styles.sectionHeader, { paddingHorizontal: 20 }]}>
-                <ThemedText style={styles.sectionTitle}>Trending this week</ThemedText>
-                <TouchableOpacity>
-                  <ThemedText style={styles.seeAll}>See all</ThemedText>
-                </TouchableOpacity>
-              </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingLeft: 20, gap: 14, paddingRight: 20 }}
-              >
-                {trending.map((track) => (
-                  <TouchableOpacity key={track.id} style={styles.recentCard}>
-                    <Image source={{ uri: track.album_image }} style={styles.recentImage} />
-                    <LinearGradient colors={["transparent", "rgba(0,0,0,0.88)"]} style={styles.recentGradient} />
-                    <View style={styles.recentInfo}>
-                      <ThemedText style={styles.recentTitle} numberOfLines={1}>{track.name}</ThemedText>
-                      <ThemedText style={styles.recentArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
-                    </View>
-                    <TouchableOpacity style={styles.recentPlayBtn}>
-                      <Ionicons name="play" size={13} color="#fff" />
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
         </ScrollView>
       )}
+
+      {currentTrack && !playerVisible && (
+        <TouchableOpacity
+          style={[styles.miniPlayer, { bottom: insets.bottom + 65 }]}
+          onPress={() => setPlayerVisible(true)}
+          activeOpacity={0.9}
+        >
+          <Image source={{ uri: currentTrack.album_image }} style={styles.miniImg} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <ThemedText style={styles.miniTitle} numberOfLines={1}>{currentTrack.name}</ThemedText>
+            <ThemedText style={styles.miniArtist} numberOfLines={1}>{currentTrack.artist_name}</ThemedText>
+          </View>
+          <TouchableOpacity onPress={togglePlay} style={styles.miniPlayBtn}>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#06A0B5" />
+            ) : (
+              <Ionicons name={isPlaying ? "pause" : "play"} size={22} color="#fff" />
+            )}
+          </TouchableOpacity>
+          <View style={styles.miniProgressBg}>
+            <View
+              style={[
+                styles.miniProgressFill,
+                { width: `${duration > 0 ? (position / duration) * 100 : 0}%` as any },
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+      )}
+
+      <PlayerModal
+        visible={playerVisible}
+        onClose={() => setPlayerVisible(false)}
+        track={currentTrack}
+        isPlaying={isPlaying}
+        onToggle={togglePlay}
+        position={position}
+        duration={duration}
+        onSeek={seek}
+      />
     </View>
   );
 }
 
-// Les styles restent identiques à ton code original
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D" },
   loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
@@ -322,11 +379,11 @@ const styles = StyleSheet.create({
   chipTextActive: { color: "#000" },
 
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-start", alignItems: "flex-end", paddingTop: 100, paddingRight: 16 },
-  menuCard: { backgroundColor: "#1C1C1C", borderRadius: 18, padding: 6, width: 230, borderWidth: 1, borderColor: "#2A2A2A", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 20, elevation: 20 },
-  menuProfile: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, paddingBottom: 10 },
+  menuCard: { backgroundColor: "#1C1C1C", borderRadius: 18, padding: 6, width: 230, borderWidth: 1, borderColor: "#2A2A2A", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 20 },
+  menuProfile: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12 },
   menuAvatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: "#06A0B5" },
   menuName: { color: "#fff", fontSize: 14, fontWeight: "700" },
-  menuEmail: { color: "#555", fontSize: 11, marginTop: 1 },
+  menuEmail: { color: "#555", fontSize: 11 },
   menuDivider: { height: 1, backgroundColor: "#252525", marginHorizontal: 6, marginVertical: 4 },
   menuItem: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12 },
   menuItemText: { color: "#ccc", fontSize: 14, fontWeight: "500" },
@@ -350,25 +407,33 @@ const styles = StyleSheet.create({
   seeAll: { color: "#06A0B5", fontSize: 12, fontWeight: "600" },
 
   grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 10 },
-  gridItem: { width: GRID_ITEM_WIDTH, flexDirection: "row", alignItems: "center", backgroundColor: "#181818", borderRadius: 14, overflow: "hidden", height: 56, borderWidth: 1, borderColor: "#222" },
-  gridImage: { width: 56, height: 56 },
-  gridTitle: { color: "#fff", fontSize: 12, fontWeight: "600", flex: 1, marginLeft: 10, marginRight: 4 },
-  gridPlay: { width: 24, height: 24, borderRadius: 12, backgroundColor: "rgba(6,160,181,0.15)", alignItems: "center", justifyContent: "center", marginRight: 8, flexShrink: 0 },
+  gridItem: { width: GRID_ITEM_WIDTH, flexDirection: "row", alignItems: "center", backgroundColor: "#181818", borderRadius: 14, height: 56, borderWidth: 1, borderColor: "#222" },
+  gridItemActive: { borderColor: "#06A0B5", backgroundColor: "#1A2A2A" },
+  gridImage: { width: 56, height: 56, borderTopLeftRadius: 13, borderBottomLeftRadius: 13 },
+  gridTitle: { color: "#fff", fontSize: 11, fontWeight: "600", flex: 1, marginLeft: 10, marginRight: 4 },
+  gridPlay: { width: 24, height: 24, borderRadius: 12, backgroundColor: "rgba(6,160,181,0.15)", alignItems: "center", justifyContent: "center", marginRight: 8 },
+
+  trendingCard: { width: 140, height: 170, borderRadius: 18, overflow: "hidden" },
+  trendingImage: { width: "100%", height: "100%", position: "absolute" },
+  trendingGradient: { position: "absolute", width: "100%", height: "100%" },
+  trendingInfo: { position: "absolute", bottom: 10, left: 10, right: 10 },
+  trendingTitle: { color: "#fff", fontSize: 12, fontWeight: "700" },
+  trendingArtist: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginTop: 1 },
+  trendingPlayBtn: { position: "absolute", top: 9, right: 9, width: 28, height: 28, borderRadius: 14, backgroundColor: "rgba(6,160,181,0.85)", alignItems: "center", justifyContent: "center" },
 
   mixCard: { width: 155, height: 205, borderRadius: 18, overflow: "hidden" },
   mixImage: { width: "100%", height: "100%", position: "absolute" },
-  mixGradient: { position: "absolute", width: "100%", height: "100%" },
-  mixAccentBar: { position: "absolute", bottom: 0, left: 0, right: 0, height: 3, backgroundColor: "#06A0B5" },
-  mixInfo: { position: "absolute", bottom: 44, left: 12, right: 12 },
+  mixGradient: { ...StyleSheet.absoluteFillObject },
+  mixInfo: { position: "absolute", bottom: 15, left: 12, right: 12 },
   mixGenre: { color: "rgba(255,255,255,0.5)", fontSize: 9, marginBottom: 2 },
   mixTitle: { color: "#fff", fontSize: 14, fontWeight: "700" },
-  mixPlayBtn: { position: "absolute", bottom: 10, right: 10, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.18)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" },
 
-  recentCard: { width: 140, height: 170, borderRadius: 18, overflow: "hidden" },
-  recentImage: { width: "100%", height: "100%", position: "absolute" },
-  recentGradient: { position: "absolute", width: "100%", height: "100%" },
-  recentInfo: { position: "absolute", bottom: 10, left: 10, right: 10 },
-  recentTitle: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  recentArtist: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginTop: 1 },
-  recentPlayBtn: { position: "absolute", top: 9, right: 9, width: 28, height: 28, borderRadius: 14, backgroundColor: "rgba(6,160,181,0.85)", alignItems: "center", justifyContent: "center" },
+  miniPlayer: { position: "absolute", left: 10, right: 10, height: 62, backgroundColor: "#1C1C1C", borderRadius: 16, flexDirection: "row", alignItems: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: "#2A2A2A", elevation: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, overflow: "hidden" },
+  miniImg: { width: 44, height: 44, borderRadius: 10 },
+  miniTitle: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  miniArtist: { color: "#666", fontSize: 11, marginTop: 1 },
+  miniPlayBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center", marginLeft: 6 },
+  miniProgressBg: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: "#252525" },
+  miniProgressFill: { height: "100%", backgroundColor: "#06A0B5" },
 });
+
