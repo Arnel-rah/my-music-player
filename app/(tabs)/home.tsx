@@ -37,6 +37,7 @@ export default function Home() {
   const [playerVisible, setPlayerVisible] = useState(false);
 
   const { featured, trending, albums, loading, refetch } = useJamendo(GENRES[activeGenre]);
+  const [greeting, setGreeting] = useState('');
   const {
     playTrack,
     playNext,
@@ -71,6 +72,17 @@ export default function Home() {
 
   const hero = featured[0];
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "GOOD MORNING";
+    if (hour < 18) return "GOOD AFTERNOON";
+    return "GOOD EVENING";
+  }
+
+  React.useEffect(() => {
+    setGreeting(getGreeting());
+  }, []);
+
   return (
     <View style={styles.container}>
 
@@ -85,7 +97,7 @@ export default function Home() {
               <View style={styles.avatarOnline} />
             </TouchableOpacity>
             <View>
-              <ThemedText style={styles.greeting}>GOOD EVENING</ThemedText>
+              <ThemedText style={styles.greeting}>{greeting}</ThemedText>
               <ThemedText style={styles.userName}>{user?.name ?? "Guest"}</ThemedText>
             </View>
           </View>
@@ -463,4 +475,3 @@ const styles = StyleSheet.create({
   miniProgressBg: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: "#252525" },
   miniProgressFill: { height: "100%", backgroundColor: "#06A0B5" },
 });
-
