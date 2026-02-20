@@ -8,6 +8,7 @@ import {
   Dimensions,
   StatusBar,
   Share,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
@@ -33,6 +34,8 @@ export default function PlayerModal({
   onSeek,
   onNext,
   onPrev,
+  queue = [],
+  queueIndex = 0,
 }: any) {
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(isPlaying ? 1 : 0.85);
@@ -81,6 +84,8 @@ export default function PlayerModal({
   const repeatIcon = repeat === 'one' ? 'repeat' : 'repeat-outline';
   const repeatColor = repeat === 'off' ? '#555' : '#06A0B5';
 
+  const upNext = queue.slice(queueIndex + 1, queueIndex + 6);
+
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" statusBarTranslucent>
       <StatusBar barStyle="light-content" />
@@ -92,7 +97,6 @@ export default function PlayerModal({
           style={StyleSheet.absoluteFill}
         />
 
-        {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
           <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
             <Ionicons name="chevron-down" size={22} color="#fff" />
@@ -104,134 +108,132 @@ export default function PlayerModal({
             </ThemedText>
           </View>
           <TouchableOpacity style={styles.headerBtn} onPress={() => setShowQueue(!showQueue)}>
-            <Ionicons name="ellipsis-horizontal" size={22} color="#fff" />
+            <Ionicons name={showQueue ? "musical-notes" : "list"} size={20} color={showQueue ? "#06A0B5" : "#fff"} />
           </TouchableOpacity>
         </View>
 
-        {/* Artwork */}
-        <View style={styles.artworkWrapper}>
-          <Animated.View style={[styles.artworkContainer, artworkStyle]}>
-            <Image source={{ uri: track.album_image }} style={styles.artwork} />
-          </Animated.View>
-        </View>
-
-        {/* Info */}
-        <View style={styles.infoRow}>
-          <View style={styles.infoLeft}>
-            <ThemedText style={styles.trackTitle} numberOfLines={1}>{track.name}</ThemedText>
-            <ThemedText style={styles.trackArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
-          </View>
-          <View style={styles.infoActions}>
-            <TouchableOpacity
-              style={[styles.likeBtn, liked && styles.likeBtnActive]}
-              onPress={() => setLiked(!liked)}
-            >
-              <Ionicons
-                name={liked ? "heart" : "heart-outline"}
-                size={22}
-                color={liked ? "#fff" : "#06A0B5"}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleShare}>
-              <Ionicons name="add-circle-outline" size={22} color="#555" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Progress */}
-        <View style={styles.progressSection}>
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${progress * 100}%` as any }]}>
-              <View style={styles.progressDot} />
+        {!showQueue ? (
+          <>
+            <View style={styles.artworkWrapper}>
+              <Animated.View style={[styles.artworkContainer, artworkStyle]}>
+                <Image source={{ uri: track.album_image }} style={styles.artwork} />
+              </Animated.View>
             </View>
-          </View>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={duration || 1}
-            value={position}
-            minimumTrackTintColor="transparent"
-            maximumTrackTintColor="transparent"
-            thumbTintColor="transparent"
-            onSlidingComplete={onSeek}
-          />
-          <View style={styles.timeRow}>
-            <ThemedText style={styles.time}>{formatTime(position)}</ThemedText>
-            <ThemedText style={styles.time}>{formatTime(duration)}</ThemedText>
-          </View>
-        </View>
 
-        {/* Controls */}
-        <View style={styles.controls}>
-          <TouchableOpacity
-            style={styles.sideBtn}
-            onPress={() => setShuffle(!shuffle)}
-          >
-            <Ionicons
-              name="shuffle-outline"
-              size={22}
-              color={shuffle ? "#06A0B5" : "#555"}
-            />
-            {shuffle && <View style={styles.activeIndicator} />}
-          </TouchableOpacity>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLeft}>
+                <ThemedText style={styles.trackTitle} numberOfLines={1}>{track.name}</ThemedText>
+                <ThemedText style={styles.trackArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
+              </View>
+              <View style={styles.infoActions}>
+                <TouchableOpacity
+                  style={[styles.likeBtn, liked && styles.likeBtnActive]}
+                  onPress={() => setLiked(!liked)}
+                >
+                  <Ionicons
+                    name={liked ? "heart" : "heart-outline"}
+                    size={22}
+                    color={liked ? "#fff" : "#06A0B5"}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleShare}>
+                  <Ionicons name="add-circle-outline" size={22} color="#555" />
+                </TouchableOpacity>
+              </View>
+            </View>
 
-          <TouchableOpacity style={styles.skipBtn} onPress={onPrev}>
-            <Ionicons name="play-skip-back" size={26} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.playBtn} onPress={onToggle}>
-            <LinearGradient
-              colors={["#00C2CB", "#06A0B5"]}
-              style={styles.playBtnGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Ionicons
-                name={isPlaying ? "pause" : "play"}
-                size={32}
-                color="#fff"
-                style={{ marginLeft: isPlaying ? 0 : 4 }}
+            <View style={styles.progressSection}>
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, { width: `${progress * 100}%` as any }]}>
+                  <View style={styles.progressDot} />
+                </View>
+              </View>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={duration || 1}
+                value={position}
+                minimumTrackTintColor="transparent"
+                maximumTrackTintColor="transparent"
+                thumbTintColor="transparent"
+                onSlidingComplete={onSeek}
               />
-            </LinearGradient>
-          </TouchableOpacity>
+              <View style={styles.timeRow}>
+                <ThemedText style={styles.time}>{formatTime(position)}</ThemedText>
+                <ThemedText style={styles.time}>{formatTime(duration)}</ThemedText>
+              </View>
+            </View>
 
-          <TouchableOpacity style={styles.skipBtn} onPress={onNext}>
-            <Ionicons name="play-skip-forward" size={26} color="#fff" />
-          </TouchableOpacity>
+            <View style={styles.controls}>
+              <TouchableOpacity style={styles.sideBtn} onPress={() => setShuffle(!shuffle)}>
+                <Ionicons name="shuffle-outline" size={22} color={shuffle ? "#06A0B5" : "#555"} />
+                {shuffle && <View style={styles.activeIndicator} />}
+              </TouchableOpacity>
 
-          <TouchableOpacity style={styles.sideBtn} onPress={handleRepeat}>
-            <Ionicons name={repeatIcon} size={22} color={repeatColor} />
-            {repeat === 'one' && (
-              <ThemedText style={styles.repeatOneLabel}>1</ThemedText>
-            )}
-            {repeat !== 'off' && <View style={[styles.activeIndicator, { backgroundColor: "#06A0B5" }]} />}
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                style={styles.skipBtn}
+                onPress={onPrev}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-back" size={26} color="#fff" />
+              </TouchableOpacity>
 
-        {/* Bottom actions */}
-        <View style={[styles.bottomActions, { paddingBottom: insets.bottom + 16 }]}>
-          <TouchableOpacity style={styles.bottomBtn} onPress={handleShare}>
-            <Ionicons name="share-outline" size={20} color="#555" />
-            <ThemedText style={styles.bottomBtnText}>Share</ThemedText>
-          </TouchableOpacity>
+              <TouchableOpacity style={styles.playBtn} onPress={onToggle} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#00C2CB", "#06A0B5"]}
+                  style={styles.playBtnGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Ionicons
+                    name={isPlaying ? "pause" : "play"}
+                    size={32}
+                    color="#fff"
+                    style={{ marginLeft: isPlaying ? 0 : 4 }}
+                  />
+                </LinearGradient>
+              </TouchableOpacity>
 
-          <View style={styles.dotsRow}>
-            {[0, 1, 2].map((i) => (
-              <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
-            ))}
-          </View>
+              <TouchableOpacity
+                style={styles.skipBtn}
+                onPress={onNext}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-forward" size={26} color="#fff" />
+              </TouchableOpacity>
 
-          <TouchableOpacity style={styles.bottomBtn} onPress={() => setShowQueue(!showQueue)}>
-            <Ionicons name="list-outline" size={20} color={showQueue ? "#06A0B5" : "#555"} />
-            <ThemedText style={[styles.bottomBtnText, showQueue && { color: "#06A0B5" }]}>Queue</ThemedText>
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity style={styles.sideBtn} onPress={handleRepeat}>
+                <Ionicons name={repeatIcon} size={22} color={repeatColor} />
+                {repeat === 'one' && (
+                  <ThemedText style={styles.repeatOneLabel}>1</ThemedText>
+                )}
+                {repeat !== 'off' && (
+                  <View style={[styles.activeIndicator, { backgroundColor: "#06A0B5" }]} />
+                )}
+              </TouchableOpacity>
+            </View>
 
-        {/* Queue panel */}
-        {showQueue && (
-          <View style={[styles.queuePanel, { paddingBottom: insets.bottom }]}>
-            <View style={styles.queueHandle} />
-            <ThemedText style={styles.queueTitle}>Up Next</ThemedText>
+            <View style={[styles.bottomActions, { paddingBottom: insets.bottom + 16 }]}>
+              <TouchableOpacity style={styles.bottomBtn} onPress={handleShare}>
+                <Ionicons name="share-outline" size={20} color="#555" />
+                <ThemedText style={styles.bottomBtnText}>Share</ThemedText>
+              </TouchableOpacity>
+              <View style={styles.dotsRow}>
+                {[0, 1, 2].map((i) => (
+                  <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
+                ))}
+              </View>
+              <TouchableOpacity style={styles.bottomBtn} onPress={() => setShowQueue(true)}>
+                <Ionicons name="list-outline" size={20} color="#555" />
+                <ThemedText style={styles.bottomBtnText}>Queue</ThemedText>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <View style={[styles.queueView, { paddingBottom: insets.bottom + 16 }]}>
+            <ThemedText style={styles.queueTitle}>Queue</ThemedText>
+
+            <ThemedText style={styles.queueSection}>NOW PLAYING</ThemedText>
             <View style={styles.queueCurrentItem}>
               <Image source={{ uri: track.album_image }} style={styles.queueImg} />
               <View style={{ flex: 1, marginLeft: 12 }}>
@@ -239,12 +241,78 @@ export default function PlayerModal({
                 <ThemedText style={styles.queueArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
               </View>
               <View style={styles.queuePlayingDots}>
-                {[0, 1, 2].map((i) => (
-                  <Animated.View key={i} style={styles.queueDot} />
+                {[14, 20, 12].map((h, i) => (
+                  <View key={i} style={[styles.queueDot, { height: h }]} />
                 ))}
               </View>
             </View>
-            <ThemedText style={styles.queueEmpty}>No tracks queued</ThemedText>
+
+            {upNext.length > 0 && (
+              <>
+                <ThemedText style={styles.queueSection}>UP NEXT</ThemedText>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {upNext.map((t: any, i: number) => (
+                    <TouchableOpacity
+                      key={t.id}
+                      style={styles.queueNextItem}
+                      onPress={() => {
+                        const stepsForward = i + 1;
+                        for (let s = 0; s < stepsForward; s++) onNext?.();
+                      }}
+                    >
+                      <ThemedText style={styles.queueNextIndex}>{queueIndex + i + 2}</ThemedText>
+                      <Image source={{ uri: t.album_image }} style={styles.queueNextImg} />
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <ThemedText style={styles.queueNextName} numberOfLines={1}>{t.name}</ThemedText>
+                        <ThemedText style={styles.queueNextArtist} numberOfLines={1}>{t.artist_name}</ThemedText>
+                      </View>
+                      <TouchableOpacity>
+                        <Ionicons name="ellipsis-vertical" size={16} color="#444" />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+
+            {upNext.length === 0 && (
+              <View style={styles.queueEmptyState}>
+                <Ionicons name="musical-notes-outline" size={40} color="#222" />
+                <ThemedText style={styles.queueEmpty}>No tracks queued</ThemedText>
+              </View>
+            )}
+
+            <View style={styles.queueControls}>
+              <TouchableOpacity
+                style={styles.skipBtn}
+                onPress={onPrev}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.playBtn} onPress={onToggle}>
+                <LinearGradient
+                  colors={["#00C2CB", "#06A0B5"]}
+                  style={styles.playBtnGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Ionicons
+                    name={isPlaying ? "pause" : "play"}
+                    size={28}
+                    color="#fff"
+                    style={{ marginLeft: isPlaying ? 0 : 3 }}
+                  />
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.skipBtn}
+                onPress={onNext}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-forward" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -255,7 +323,6 @@ export default function PlayerModal({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#050505" },
-
   bgImage: { position: "absolute", width: "100%", height: "50%", opacity: 0.4 },
 
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 10 },
@@ -299,15 +366,25 @@ const styles = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#222" },
   dotActive: { width: 18, height: 6, borderRadius: 3, backgroundColor: "#06A0B5" },
 
-  queuePanel: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#111", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingTop: 12 },
-  queueHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: "#333", alignSelf: "center", marginBottom: 16 },
-  queueTitle: { color: "#fff", fontSize: 16, fontWeight: "700", marginBottom: 14 },
-  queueCurrentItem: { flexDirection: "row", alignItems: "center", backgroundColor: "#1A1A1A", borderRadius: 14, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: "#06A0B5" + "33" },
-  queueImg: { width: 44, height: 44, borderRadius: 10 },
-  queueTrackName: { color: "#fff", fontSize: 13, fontWeight: "700" },
-  queueArtist: { color: "#555", fontSize: 11, marginTop: 2 },
-  queuePlayingDots: { flexDirection: "row", gap: 3, alignItems: "flex-end" },
-  queueDot: { width: 3, height: 12, borderRadius: 2, backgroundColor: "#06A0B5" },
-  queueEmpty: { color: "#333", fontSize: 13, textAlign: "center", paddingVertical: 10 },
+  queueView: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
+  queueTitle: { color: "#fff", fontSize: 20, fontWeight: "800", marginBottom: 20 },
+  queueSection: { color: "#444", fontSize: 10, fontWeight: "800", letterSpacing: 1.5, marginBottom: 10 },
+  queueCurrentItem: { flexDirection: "row", alignItems: "center", backgroundColor: "#141414", borderRadius: 16, padding: 12, marginBottom: 24, borderWidth: 1, borderColor: "#06A0B5" + "44" },
+  queueImg: { width: 48, height: 48, borderRadius: 10 },
+  queueTrackName: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  queueArtist: { color: "#555", fontSize: 12, marginTop: 2 },
+  queuePlayingDots: { flexDirection: "row", gap: 3, alignItems: "flex-end", height: 24 },
+  queueDot: { width: 3, borderRadius: 2, backgroundColor: "#06A0B5" },
+
+  queueNextItem: { flexDirection: "row", alignItems: "center", paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "#111", gap: 4 },
+  queueNextIndex: { color: "#333", fontSize: 13, fontWeight: "700", width: 24, textAlign: "center" },
+  queueNextImg: { width: 44, height: 44, borderRadius: 10 },
+  queueNextName: { color: "#fff", fontSize: 13, fontWeight: "600" },
+  queueNextArtist: { color: "#555", fontSize: 11, marginTop: 2 },
+
+  queueEmptyState: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10 },
+  queueEmpty: { color: "#333", fontSize: 13 },
+
+  queueControls: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 20, paddingTop: 20, borderTopWidth: 1, borderTopColor: "#111" },
 });
 

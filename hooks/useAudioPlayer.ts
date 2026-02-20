@@ -7,11 +7,14 @@ export interface Track {
   artist_name: string;
   album_image: string;
   audio: string;
+  shareurl?: string;
 }
 
 export function useAudioPlayer() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [queue, setQueue] = useState<Track[]>([]);
+  const [queueIndex, setQueueIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -25,12 +28,7 @@ export function useAudioPlayer() {
       shouldDuckAndroid: true,
       playThroughEarpieceAndroid: false,
     });
-
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
+    return () => { soundRef.current?.unloadAsync(); };
   }, []);
 
   const onPlaybackStatusUpdate = useCallback((status: AVPlaybackStatus) => {
@@ -38,23 +36,20 @@ export function useAudioPlayer() {
     setIsPlaying(status.isPlaying);
     setPosition(status.positionMillis ?? 0);
     setDuration(status.durationMillis ?? 0);
-
     if (status.didJustFinish) {
       setIsPlaying(false);
       setPosition(0);
     }
   }, []);
 
-  const playTrack = useCallback(async (track: Track) => {
+  const loadAndPlay = useCallback(async (track: Track) => {
     try {
       setIsLoading(true);
-
       if (soundRef.current) {
         await soundRef.current.stopAsync();
         await soundRef.current.unloadAsync();
         soundRef.current = null;
       }
-
       setCurrentTrack(track);
       setPosition(0);
       setDuration(0);
@@ -64,7 +59,6 @@ export function useAudioPlayer() {
         { shouldPlay: true, progressUpdateIntervalMillis: 500 },
         onPlaybackStatusUpdate
       );
-
       soundRef.current = sound;
       setIsPlaying(true);
     } catch (error) {
@@ -74,6 +68,34 @@ export function useAudioPlayer() {
       setIsLoading(false);
     }
   }, [onPlaybackStatusUpdate]);
+
+  // Joue un track ET définit la queue
+  const playTrack = useCallback(async (track: Track, trackQueue?: Track[]) => {
+    const newQueue = trackQueue ?? [track];
+    const index = newQueue.findIndex((t) => t.id === track.id);
+    setQueue(newQueue);
+    setQueueIndex(index >= 0 ? index : 0);
+    await loadAndPlay(track);
+  }, [loadAndPlay]);
+
+  const playNext = useCallback(async () => {
+    if (queue.length === 0) return;
+    const nextIndex = (queueIndex + 1) % queue.length;
+    setQueueIndex(nextIndex);
+    await loadAndPlay(queue[nextIndex]);
+  }, [queue, queueIndex, loadAndPlay]);
+
+  const playPrev = useCallback(async () => {
+    if (queue.length === 0) return;
+    // Si on est à plus de 3s, on rewind
+    if (position > 3000) {
+      await soundRef.current?.setPositionAsync(0);
+      return;
+    }
+    const prevIndex = (queueIndex - 1 + queue.length) % queue.length;
+    setQueueIndex(prevIndex);
+    await loadAndPlay(queue[prevIndex]);
+  }, [queue, queueIndex, position, loadAndPlay]);
 
   const togglePlay = useCallback(async () => {
     if (!soundRef.current) return;
@@ -97,30 +119,18 @@ export function useAudioPlayer() {
     }
   }, []);
 
-  const stop = useCallback(async () => {
-    if (!soundRef.current) return;
-    try {
-      await soundRef.current.stopAsync();
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
-      setCurrentTrack(null);
-      setIsPlaying(false);
-      setPosition(0);
-      setDuration(0);
-    } catch (error) {
-      console.error("Erreur stop:", error);
-    }
-  }, []);
-
   return {
     playTrack,
+    playNext,
+    playPrev,
     togglePlay,
     seek,
-    stop,
     isPlaying,
     isLoading,
     currentTrack,
     position,
     duration,
+    queue,
+    queueIndex,
   };
 }
