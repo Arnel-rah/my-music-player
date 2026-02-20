@@ -37,7 +37,20 @@ export default function Home() {
   const [playerVisible, setPlayerVisible] = useState(false);
 
   const { featured, trending, albums, loading, refetch } = useJamendo(GENRES[activeGenre]);
-  const { playTrack, togglePlay, isPlaying, isLoading, currentTrack, position, duration, seek } = useAudioPlayer();
+  const {
+    playTrack,
+    playNext,
+    playPrev,
+    togglePlay,
+    isPlaying,
+    isLoading,
+    currentTrack,
+    position,
+    duration,
+    seek,
+    queue,
+    queueIndex,
+  } = useAudioPlayer();
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -51,8 +64,8 @@ export default function Home() {
     router.replace("/(auth)/launch");
   };
 
-  const handlePlay = (track: any) => {
-    playTrack(track);
+  const handlePlay = (track: any, trackList?: any[]) => {
+    playTrack(track, trackList ?? featured);
     setPlayerVisible(true);
   };
 
@@ -184,7 +197,10 @@ export default function Home() {
                   <ThemedText style={styles.heroTitle} numberOfLines={1}>{hero.name}</ThemedText>
                   <ThemedText style={styles.heroSub} numberOfLines={1}>{hero.artist_name}</ThemedText>
                   <View style={styles.heroActions}>
-                    <TouchableOpacity style={styles.heroPlayBtn} onPress={() => handlePlay(hero)}>
+                    <TouchableOpacity
+                      style={styles.heroPlayBtn}
+                      onPress={() => handlePlay(hero, featured)}
+                    >
                       <Ionicons name="play" size={15} color="#fff" />
                       <ThemedText style={styles.heroPlayText}>Play now</ThemedText>
                     </TouchableOpacity>
@@ -209,11 +225,8 @@ export default function Home() {
                 {featured.slice(0, 6).map((track) => (
                   <TouchableOpacity
                     key={track.id}
-                    style={[
-                      styles.gridItem,
-                      currentTrack?.id === track.id && styles.gridItemActive,
-                    ]}
-                    onPress={() => handlePlay(track)}
+                    style={[styles.gridItem, currentTrack?.id === track.id && styles.gridItemActive]}
+                    onPress={() => handlePlay(track, featured)}
                   >
                     <Image source={{ uri: track.album_image }} style={styles.gridImage} />
                     <ThemedText style={styles.gridTitle} numberOfLines={1}>{track.name}</ThemedText>
@@ -251,7 +264,7 @@ export default function Home() {
                   <TouchableOpacity
                     key={track.id}
                     style={styles.trendingCard}
-                    onPress={() => handlePlay(track)}
+                    onPress={() => handlePlay(track, trending)}
                   >
                     <Image source={{ uri: track.album_image }} style={styles.trendingImage} />
                     <LinearGradient
@@ -262,7 +275,10 @@ export default function Home() {
                       <ThemedText style={styles.trendingTitle} numberOfLines={1}>{track.name}</ThemedText>
                       <ThemedText style={styles.trendingArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
                     </View>
-                    <TouchableOpacity style={styles.trendingPlayBtn} onPress={() => handlePlay(track)}>
+                    <TouchableOpacity
+                      style={styles.trendingPlayBtn}
+                      onPress={() => handlePlay(track, trending)}
+                    >
                       <Ionicons
                         name={currentTrack?.id === track.id && isPlaying ? "pause" : "play"}
                         size={13}
@@ -319,12 +335,18 @@ export default function Home() {
             <ThemedText style={styles.miniTitle} numberOfLines={1}>{currentTrack.name}</ThemedText>
             <ThemedText style={styles.miniArtist} numberOfLines={1}>{currentTrack.artist_name}</ThemedText>
           </View>
-          <TouchableOpacity onPress={togglePlay} style={styles.miniPlayBtn}>
+          <TouchableOpacity onPress={(e) => { e.stopPropagation(); playPrev(); }} style={styles.miniControlBtn}>
+            <Ionicons name="play-skip-back" size={18} color="#aaa" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={(e) => { e.stopPropagation(); togglePlay(); }} style={styles.miniPlayBtn}>
             {isLoading ? (
               <ActivityIndicator size="small" color="#06A0B5" />
             ) : (
               <Ionicons name={isPlaying ? "pause" : "play"} size={22} color="#fff" />
             )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={(e) => { e.stopPropagation(); playNext(); }} style={styles.miniControlBtn}>
+            <Ionicons name="play-skip-forward" size={18} color="#aaa" />
           </TouchableOpacity>
           <View style={styles.miniProgressBg}>
             <View
@@ -346,6 +368,10 @@ export default function Home() {
         position={position}
         duration={duration}
         onSeek={seek}
+        onNext={playNext}
+        onPrev={playPrev}
+        queue={queue}
+        queueIndex={queueIndex}
       />
     </View>
   );
@@ -432,7 +458,8 @@ const styles = StyleSheet.create({
   miniImg: { width: 44, height: 44, borderRadius: 10 },
   miniTitle: { color: "#fff", fontSize: 13, fontWeight: "700" },
   miniArtist: { color: "#666", fontSize: 11, marginTop: 1 },
-  miniPlayBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center", marginLeft: 6 },
+  miniControlBtn: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
+  miniPlayBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
   miniProgressBg: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: "#252525" },
   miniProgressFill: { height: "100%", backgroundColor: "#06A0B5" },
 });
