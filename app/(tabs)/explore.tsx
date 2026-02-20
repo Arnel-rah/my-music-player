@@ -14,7 +14,7 @@ import {
   Dimensions,
   Modal,
   ActivityIndicator,
-  RefreshControl, // Importé pour le pull-to-refresh
+  RefreshControl, 
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -32,14 +32,13 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   
-  // On récupère 'refetch' depuis ton hook
   const { featured, trending, albums, loading, refetch } = useHomeData(GENRES[activeGenre]);
+  const [greeting, setGreeting] = useState('');
 
-  // Fonction de rafraîchissement
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     if (refetch) {
-      await refetch(); // Relance les appels API
+      await refetch();
     }
     setRefreshing(false);
   }, [refetch]);
@@ -51,10 +50,19 @@ export default function Home() {
   };
 
   const hero = featured[0];
+   const getGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour < 12) return "GOOD MORNING";
+      if (hour < 18) return "GOOD AFTERNOON";
+      return "GOOD EVENING";
+    }
+  
+    React.useEffect(() => {
+      setGreeting(getGreeting());
+    }, []);
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top + 6 }]}>
         <View style={styles.topRow}>
           <View style={styles.greetingRow}>
@@ -63,7 +71,7 @@ export default function Home() {
               <View style={styles.avatarOnline} />
             </TouchableOpacity>
             <View>
-              <ThemedText style={styles.greeting}>GOOD EVENING</ThemedText>
+              <ThemedText style={styles.greeting}>{greeting}</ThemedText>
               <ThemedText style={styles.userName}>{user?.name ?? "Guest"}</ThemedText>
             </View>
           </View>
@@ -87,7 +95,6 @@ export default function Home() {
         </ScrollView>
       </View>
 
-      {/* Profile Menu Modal */}
       <Modal visible={showMenu} transparent animationType="fade">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
           <View style={styles.menuCard}>
@@ -104,7 +111,6 @@ export default function Home() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Main Content with RefreshControl */}
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}><ActivityIndicator color="#06A0B5" size="large" /></View>
       ) : (
@@ -158,7 +164,6 @@ export default function Home() {
   );
 }
 
-// Les styles restent identiques à ton code...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D" },
   headerWrapper: { backgroundColor: "#0D0D0D", paddingBottom: 12 },
