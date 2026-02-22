@@ -30,7 +30,7 @@ Une application de streaming musical fluide et moderne, propulsée par **React N
 
 ```bash
 # 1. Cloner le projet
-git clone [https://github.com/Arnel-rah/my-music-player](https://github.com/Arnel-rah/my-music-player)
+git clone https://github.com/Arnel-rah/my-music-player
 cd my-music-player
 
 # 2. Installer les dépendances
