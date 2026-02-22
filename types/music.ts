@@ -4,6 +4,7 @@ export interface Song {
   title: string;
   artist: Artist;
   album: Album;
+  auteur: string;
   duration: number;
   cover: string;
   url: string;
