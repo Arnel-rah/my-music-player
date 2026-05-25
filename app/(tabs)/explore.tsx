@@ -14,7 +14,7 @@ import {
   Dimensions,
   Modal,
   ActivityIndicator,
-  RefreshControl, 
+  RefreshControl,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -31,17 +31,14 @@ export default function Home() {
   const [activeGenre, setActiveGenre] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
-  const { featured, trending, albums, loading, refetch } = useHomeData(GENRES[activeGenre]);
+
+  const { featured, trending, albums, loading } = useHomeData(GENRES[activeGenre]);
   const [greeting, setGreeting] = useState('');
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (refetch) {
-      await refetch();
-    }
     setRefreshing(false);
-  }, [refetch]);
+  }, []);
 
   const handleLogout = async () => {
     setShowMenu(false);
@@ -53,10 +50,10 @@ export default function Home() {
    const getGreeting = () => {
       const hour = new Date().getHours();
       if (hour < 12) return "GOOD MORNING";
-      if (hour < 18) return "GOOD AFTERNOON";
+      if (hour > 12 && hour < 18) return "GOOD AFTERNOON";
       return "GOOD EVENING";
     }
-  
+
     React.useEffect(() => {
       setGreeting(getGreeting());
     }, []);
@@ -114,8 +111,8 @@ export default function Home() {
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}><ActivityIndicator color="#06A0B5" size="large" /></View>
       ) : (
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
