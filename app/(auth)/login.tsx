@@ -75,7 +75,7 @@ export default function Login() {
               </View>
             </View>
             <ThemedText variant="title" className="text-white text-2xl font-bold mt-3">
-              Welcome back
+              Welcome Back
             </ThemedText>
             <ThemedText variant="caption" style={{ color: "rgba(255,255,255,0.7)" }} className="mt-1">
               Login to your account to continue
