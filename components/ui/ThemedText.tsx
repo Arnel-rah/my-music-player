@@ -14,6 +14,7 @@ const variantConfig: Record<TextVariant, string> = {
   body:     "text-base text-white",
   caption:  "text-xs text-gray-400",
   error:    "text-sm text-red-500 font-medium",
+  
 };
 
 export function ThemedText({ variant = "body", children, className, ...rest }: ThemedTextProps) {
