@@ -1,15 +1,19 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
-  withTiming,
+  useSharedValue,
   withDelay,
   withRepeat,
   withSequence,
-  Easing,
+  withTiming,
 } from "react-native-reanimated";
+const GLITCH_CONFIG = {
+  duration: 80,
+  rest: 1500,
+};
 
 function ScanLine() {
   const translateY = useSharedValue(-300);
@@ -17,15 +21,20 @@ function ScanLine() {
   useEffect(() => {
     translateY.value = withRepeat(
       withTiming(800, { duration: 2000, easing: Easing.linear }),
-      -1
+      -1,
     );
-  }, []);
+  }, [translateY]);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  return <Animated.View style={animStyle} className="absolute w-full h-0.5 bg-primary opacity-15 z-10" />;
+  return (
+    <Animated.View
+      style={[animStyle]}
+      className="absolute w-full h-0.5 bg-primary opacity-15 z-10"
+    />
+  );
 }
 
 function GlitchText() {
@@ -37,69 +46,86 @@ function GlitchText() {
   useEffect(() => {
     offsetX1.value = withRepeat(
       withSequence(
-        withTiming(4,  { duration: 80 }),
-        withTiming(-4, { duration: 80 }),
-        withTiming(0,  { duration: 80 }),
-        withTiming(0,  { duration: 1500 }),
-      ), -1
+        withTiming(4, { duration: GLITCH_CONFIG.duration }),
+        withTiming(-4, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.rest }),
+      ),
+      -1,
     );
     opacity1.value = withRepeat(
       withSequence(
-        withTiming(0.7, { duration: 80 }),
-        withTiming(0,   { duration: 80 }),
-        withTiming(0.5, { duration: 80 }),
-        withTiming(0,   { duration: 1500 }),
-      ), -1
+        withTiming(0.7, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0.5, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.rest }),
+      ),
+      -1,
     );
     offsetX2.value = withRepeat(
       withSequence(
-        withTiming(-4, { duration: 80 }),
-        withTiming(4,  { duration: 80 }),
-        withTiming(0,  { duration: 80 }),
-        withTiming(0,  { duration: 1500 }),
-      ), -1
+        withTiming(-4, { duration: GLITCH_CONFIG.duration }),
+        withTiming(4, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.rest }),
+      ),
+      -1,
     );
     opacity2.value = withRepeat(
       withSequence(
-        withTiming(0.7, { duration: 80 }),
-        withTiming(0,   { duration: 80 }),
-        withTiming(0.5, { duration: 80 }),
-        withTiming(0,   { duration: 1500 }),
-      ), -1
+        withTiming(0.7, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0.5, { duration: GLITCH_CONFIG.duration }),
+        withTiming(0, { duration: GLITCH_CONFIG.rest }),
+      ),
+      -1,
     );
-  }, []);
+  }, [offsetX1, offsetX2, opacity1, opacity2]);
 
-  const redStyle  = useAnimatedStyle(() => ({ transform: [{ translateX: offsetX1.value }], opacity: opacity1.value }));
-  const cyanStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offsetX2.value }], opacity: opacity2.value }));
+  const redStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: offsetX1.value }],
+    opacity: opacity1.value,
+  }));
+  const cyanStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: offsetX2.value }],
+    opacity: opacity2.value,
+  }));
 
   return (
-    <View className="items-center">
-      <Animated.Text style={[styles.glitchRed, redStyle]}>musium</Animated.Text>
-      <Animated.Text style={[styles.glitchCyan, cyanStyle]}>musium</Animated.Text>
-      <Text className="text-white text-4xl font-bold tracking-widest">musium</Text>
+    <View className="items-center justify-center">
+      <Animated.Text
+        style={[styles.glitchBase, styles.glitchRed, redStyle]}
+        className="text-4xl font-bold tracking-widest"
+      >
+        musium
+      </Animated.Text>
+      <Animated.Text
+        style={[styles.glitchBase, styles.glitchCyan, cyanStyle]}
+        className="text-4xl font-bold tracking-widest"
+      >
+        musium
+      </Animated.Text>
+      <Text className="text-white text-4xl font-bold tracking-widest">
+        musium
+      </Text>
     </View>
   );
 }
 
 export default function Launch() {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
 
   const logoOpacity = useSharedValue(0);
-  const logoScale   = useSharedValue(0.8);
+  const logoScale = useSharedValue(0.8);
   const textOpacity = useSharedValue(0);
   const lineOpacity = useSharedValue(0);
 
   useEffect(() => {
-    const mountTimer = setTimeout(() => setReady(true), 100);
-    return () => clearTimeout(mountTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-
     logoOpacity.value = withTiming(1, { duration: 600 });
-    logoScale.value   = withTiming(1, { duration: 600, easing: Easing.out(Easing.back(1.5)) });
+    logoScale.value = withTiming(1, {
+      duration: 600,
+      easing: Easing.out(Easing.back(1.5)),
+    });
     textOpacity.value = withDelay(500, withTiming(1, { duration: 500 }));
     lineOpacity.value = withDelay(800, withTiming(1, { duration: 300 }));
 
@@ -108,7 +134,7 @@ export default function Launch() {
     }, 3500);
 
     return () => clearTimeout(timer);
-  }, [ready]);
+  }, [router, logoOpacity, logoScale, textOpacity, lineOpacity]);
 
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
@@ -119,10 +145,7 @@ export default function Launch() {
 
   return (
     <View className="flex-1 bg-[#0A0A0A] items-center justify-center">
-
       <ScanLine />
-
-      {/* Logo */}
       <Animated.View style={logoStyle} className="mb-6">
         <View style={styles.logoOuter}>
           <View className="w-[72px] h-[72px] rounded-full bg-primary items-center justify-center">
@@ -130,13 +153,9 @@ export default function Launch() {
           </View>
         </View>
       </Animated.View>
-
-      {/* Glitch text */}
       <Animated.View style={textStyle} className="mb-5">
         <GlitchText />
       </Animated.View>
-
-      {/* Ligne décorative */}
       <Animated.View style={lineStyle} className="flex-row items-center gap-3">
         <View className="w-14 h-px bg-primary opacity-50" />
         <Text className="text-primary text-[10px] tracking-[4px] opacity-70">
@@ -144,7 +163,6 @@ export default function Launch() {
         </Text>
         <View className="w-14 h-px bg-primary opacity-50" />
       </Animated.View>
-
     </View>
   );
 }
@@ -164,18 +182,13 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 20,
   },
-  glitchRed: {
+  glitchBase: {
     position: "absolute",
-    fontSize: 36,
-    fontWeight: "700",
+  },
+  glitchRed: {
     color: "#FF003C",
-    letterSpacing: 8,
   },
   glitchCyan: {
-    position: "absolute",
-    fontSize: 36,
-    fontWeight: "700",
     color: "#00C2CB",
-    letterSpacing: 8,
   },
 });

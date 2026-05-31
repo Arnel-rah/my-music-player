@@ -20,8 +20,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useHomeData } from "@/hooks/useHomeData";
 
-const { width } = Dimensions.get("window");
-const GRID_ITEM_WIDTH = (width - 50) / 2;
 const GENRES = ["All", "Pop", "Hip-Hop", "Jazz", "Lo-fi", "K-Pop"];
 
 export default function Home() {
