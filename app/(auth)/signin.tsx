@@ -46,7 +46,7 @@ export default function SignIn() {
     topOpacity.value = withTiming(1, { duration: 800 });
     cardOpacity.value = withDelay(300, withTiming(1, { duration: 700 }));
     cardY.value = withDelay(300, withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }));
-  }, []);
+  }, [cardOpacity, cardY, topOpacity]);
 
   const topStyle = useAnimatedStyle(() => ({ opacity: topOpacity.value }));
   const cardStyle = useAnimatedStyle(() => ({
@@ -228,4 +228,3 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 });
-

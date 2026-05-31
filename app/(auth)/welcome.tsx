@@ -22,21 +22,17 @@ export default function Welcome() {
   const buttonY       = useSharedValue(30);
 
   useEffect(() => {
-    // Icone
     iconOpacity.value = withTiming(1, { duration: 600 });
     iconScale.value   = withTiming(1, { duration: 600, easing: Easing.out(Easing.back(1.5)) });
 
-    // Texte
     titleOpacity.value = withDelay(300, withTiming(1, { duration: 700 }));
     titleY.value       = withDelay(300, withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }));
 
-    // Pagination
     dotOpacity.value = withDelay(700, withTiming(1, { duration: 500 }));
 
-    // Bouton
     buttonOpacity.value = withDelay(1000, withTiming(1, { duration: 600 }));
     buttonY.value       = withDelay(1000, withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) }));
-  }, []);
+  }, [iconOpacity, iconScale, titleOpacity, titleY, dotOpacity, buttonOpacity, buttonY]);
 
   const iconStyle   = useAnimatedStyle(() => ({
     opacity: iconOpacity.value,
@@ -54,8 +50,6 @@ export default function Welcome() {
 
   return (
     <View className="flex-1 bg-background items-center justify-center px-8">
-
-      {/* Icone animée */}
       <Animated.View style={iconStyle} className="mb-10">
         <View className="w-24 h-24 rounded-full bg-primary items-center justify-center">
           <ThemedText variant="title" className="text-background text-4xl">
@@ -64,7 +58,6 @@ export default function Welcome() {
         </View>
       </Animated.View>
 
-      {/* Texte animé */}
       <Animated.View style={titleStyle} className="items-center mb-8">
         <ThemedText
           variant="body"
@@ -86,13 +79,11 @@ export default function Welcome() {
         </ThemedText>
       </Animated.View>
 
-      {/* Pagination */}
       <Animated.View style={dotStyle} className="flex-row gap-2 mb-10">
         <View className="w-8 h-1.5 rounded-full bg-primary" />
         <View className="w-4 h-1.5 rounded-full bg-muted" />
       </Animated.View>
 
-      {/* Bouton */}
       <Animated.View style={buttonStyle} className="w-full">
         <TouchableOpacity
           onPress={() => router.push("/(auth)/signin")}
@@ -104,7 +95,6 @@ export default function Welcome() {
           </ThemedText>
         </TouchableOpacity>
       </Animated.View>
-
     </View>
   );
 }
