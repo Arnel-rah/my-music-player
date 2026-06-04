@@ -1,48 +1,60 @@
-import { useEffect } from "react";
-import { View, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  Easing,
-} from "react-native-reanimated";
 import { ThemedText } from "@/components/ui/ThemedText";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { TouchableOpacity, View } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 
 export default function Welcome() {
   const router = useRouter();
-
-  const iconOpacity   = useSharedValue(0);
-  const iconScale     = useSharedValue(0.8);
-  const titleOpacity  = useSharedValue(0);
-  const titleY        = useSharedValue(30);
-  const dotOpacity    = useSharedValue(0);
+  const iconOpacity = useSharedValue(0);
+  const iconScale = useSharedValue(0.8);
+  const titleOpacity = useSharedValue(0);
+  const titleY = useSharedValue(30);
+  const dotOpacity = useSharedValue(0);
   const buttonOpacity = useSharedValue(0);
-  const buttonY       = useSharedValue(30);
+  const buttonY = useSharedValue(30);
 
   useEffect(() => {
     iconOpacity.value = withTiming(1, { duration: 600 });
-    iconScale.value   = withTiming(1, { duration: 600, easing: Easing.out(Easing.back(1.5)) });
+    iconScale.value = withTiming(1, {
+      duration: 600,
+      easing: Easing.out(Easing.back(1.5)),
+    });
 
     titleOpacity.value = withDelay(300, withTiming(1, { duration: 700 }));
-    titleY.value       = withDelay(300, withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }));
+    titleY.value = withDelay(
+      300,
+      withTiming(0, { duration: 700, easing: Easing.out(Easing.ease) }),
+    );
 
     dotOpacity.value = withDelay(700, withTiming(1, { duration: 500 }));
 
     buttonOpacity.value = withDelay(1000, withTiming(1, { duration: 600 }));
-    buttonY.value       = withDelay(1000, withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) }));
-  }, [iconOpacity, iconScale, titleOpacity, titleY, dotOpacity, buttonOpacity, buttonY]);
-
-  const iconStyle   = useAnimatedStyle(() => ({
+    buttonY.value = withDelay(
+      1000,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) }),
+    );
+  }, []);
+  const iconStyle = useAnimatedStyle(() => ({
     opacity: iconOpacity.value,
     transform: [{ scale: iconScale.value }],
   }));
-  const titleStyle  = useAnimatedStyle(() => ({
+
+  const titleStyle = useAnimatedStyle(() => ({
     opacity: titleOpacity.value,
     transform: [{ translateY: titleY.value }],
   }));
-  const dotStyle    = useAnimatedStyle(() => ({ opacity: dotOpacity.value }));
+
+  const dotStyle = useAnimatedStyle(() => ({
+    opacity: dotOpacity.value,
+  }));
+
   const buttonStyle = useAnimatedStyle(() => ({
     opacity: buttonOpacity.value,
     transform: [{ translateY: buttonY.value }],
@@ -66,16 +78,16 @@ export default function Welcome() {
           From the{" "}
           <ThemedText variant="body" className="text-primary">
             latest
-          </ThemedText>
-          {" "}to the{" "}
+          </ThemedText>{" "}
+          to the{" "}
           <ThemedText variant="body" className="text-primary">
             greatest
-          </ThemedText>
-          {" "}hits, play your favorite tracks on{" "}
+          </ThemedText>{" "}
+          hits, play your favorite tracks on{" "}
           <ThemedText variant="body" className="text-primary">
             musium
-          </ThemedText>
-          {" "}now!
+          </ThemedText>{" "}
+          now!
         </ThemedText>
       </Animated.View>
 
@@ -83,12 +95,10 @@ export default function Welcome() {
         <View className="w-8 h-1.5 rounded-full bg-primary" />
         <View className="w-4 h-1.5 rounded-full bg-muted" />
       </Animated.View>
-
       <Animated.View style={buttonStyle} className="w-full">
         <TouchableOpacity
           onPress={() => router.push("/(auth)/signin")}
-          style={{ backgroundColor: "#06A0B5" }}
-          className="w-full rounded-full py-4 items-center"
+          className="w-full rounded-full py-4 items-center bg-primary"
         >
           <ThemedText variant="body" className="text-white font-bold text-lg">
             Get Started
