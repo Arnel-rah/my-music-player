@@ -1,26 +1,26 @@
-import React, { useState, useCallback } from "react";
-import { useAuthStore } from "@/store/useAuthStore";
+import PlayerModal from "@/components/PlayerModal";
 import { ThemedText } from "@/components/ui/ThemedText";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { useJamendo } from "@/hooks/useJamendo";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
+  Dimensions,
   Image,
   ImageBackground,
+  Modal,
+  RefreshControl,
   ScrollView,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
-  TextInput,
-  Dimensions,
-  Modal,
-  ActivityIndicator,
-  RefreshControl,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { useJamendo } from "@/hooks/useJamendo";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import PlayerModal from "@/components/PlayerModal";
 
 const { width } = Dimensions.get("window");
 const GRID_ITEM_WIDTH = (width - 50) / 2;
@@ -36,8 +36,10 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [playerVisible, setPlayerVisible] = useState(false);
 
-  const { featured, trending, albums, loading, refetch } = useJamendo(GENRES[activeGenre]);
-  const [greeting, setGreeting] = useState('');
+  const { featured, trending, albums, loading, refetch } = useJamendo(
+    GENRES[activeGenre],
+  );
+  const [greeting, setGreeting] = useState("");
   const {
     playTrack,
     playNext,
@@ -74,10 +76,12 @@ export default function Home() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
+
     if (hour < 12) return "GOOD MORNING";
     if (hour < 18) return "GOOD AFTERNOON";
+
     return "GOOD EVENING";
-  }
+  };
 
   React.useEffect(() => {
     setGreeting(getGreeting());
@@ -85,20 +89,27 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-
       <View style={[styles.headerWrapper, { paddingTop: insets.top + 6 }]}>
         <View style={styles.topRow}>
           <View style={styles.greetingRow}>
-            <TouchableOpacity onPress={() => setShowMenu(true)} style={styles.avatarWrapper}>
+            <TouchableOpacity
+              onPress={() => setShowMenu(true)}
+              style={styles.avatarWrapper}
+            >
               <Image
-                source={{ uri: user?.avatar ?? "https://picsum.photos/seed/avatar/100/100" }}
+                source={{
+                  uri:
+                    user?.avatar ?? "https://picsum.photos/seed/avatar/100/100",
+                }}
                 style={styles.avatar}
               />
               <View style={styles.avatarOnline} />
             </TouchableOpacity>
             <View>
               <ThemedText style={styles.greeting}>{greeting}</ThemedText>
-              <ThemedText style={styles.userName}>{user?.name ?? "Guest"}</ThemedText>
+              <ThemedText style={styles.userName}>
+                {user?.name ?? "Guest"}
+              </ThemedText>
             </View>
           </View>
           <View style={styles.headerActions}>
@@ -109,7 +120,10 @@ export default function Home() {
               <Ionicons name="notifications-outline" size={19} color="#fff" />
               <View style={styles.notifDot} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => setShowMenu(true)}>
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={() => setShowMenu(true)}
+            >
               <Ionicons name="ellipsis-vertical" size={18} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -138,7 +152,12 @@ export default function Home() {
               onPress={() => setActiveGenre(i)}
               style={[styles.chip, activeGenre === i && styles.chipActive]}
             >
-              <ThemedText style={[styles.chipText, activeGenre === i && styles.chipTextActive]}>
+              <ThemedText
+                style={[
+                  styles.chipText,
+                  activeGenre === i && styles.chipTextActive,
+                ]}
+              >
                 {g}
               </ThemedText>
             </TouchableOpacity>
@@ -146,17 +165,33 @@ export default function Home() {
         </ScrollView>
       </View>
 
-      <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
+      <Modal
+        visible={showMenu}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowMenu(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMenu(false)}
+        >
           <View style={styles.menuCard}>
             <View style={styles.menuProfile}>
               <Image
-                source={{ uri: user?.avatar ?? "https://picsum.photos/seed/avatar/100/100" }}
+                source={{
+                  uri:
+                    user?.avatar ?? "https://picsum.photos/seed/avatar/100/100",
+                }}
                 style={styles.menuAvatar}
               />
               <View>
-                <ThemedText style={styles.menuName}>{user?.name ?? "Guest"}</ThemedText>
-                <ThemedText style={styles.menuEmail}>{user?.email ?? ""}</ThemedText>
+                <ThemedText style={styles.menuName}>
+                  {user?.name ?? "Guest"}
+                </ThemedText>
+                <ThemedText style={styles.menuEmail}>
+                  {user?.email ?? ""}
+                </ThemedText>
               </View>
             </View>
             <View style={styles.menuDivider} />
@@ -171,7 +206,9 @@ export default function Home() {
             <View style={styles.menuDivider} />
             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
               <Ionicons name="log-out-outline" size={18} color="#FF5252" />
-              <ThemedText style={[styles.menuItemText, { color: "#FF5252" }]}>Log out</ThemedText>
+              <ThemedText style={[styles.menuItemText, { color: "#FF5252" }]}>
+                Log out
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -185,12 +222,18 @@ export default function Home() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 140 + insets.bottom, paddingTop: 16 }}
+          contentContainerStyle={{
+            paddingBottom: 140 + insets.bottom,
+            paddingTop: 16,
+          }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#06A0B5" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#06A0B5"
+            />
           }
         >
-
           {hero && (
             <View style={styles.heroSection}>
               <ImageBackground
@@ -204,20 +247,32 @@ export default function Home() {
                 >
                   <View style={styles.heroBadge}>
                     <View style={styles.heroBadgeDot} />
-                    <ThemedText style={styles.heroBadgeText}>NOW TRENDING</ThemedText>
+                    <ThemedText style={styles.heroBadgeText}>
+                      NOW TRENDING
+                    </ThemedText>
                   </View>
-                  <ThemedText style={styles.heroTitle} numberOfLines={1}>{hero.name}</ThemedText>
-                  <ThemedText style={styles.heroSub} numberOfLines={1}>{hero.artist_name}</ThemedText>
+                  <ThemedText style={styles.heroTitle} numberOfLines={1}>
+                    {hero.name}
+                  </ThemedText>
+                  <ThemedText style={styles.heroSub} numberOfLines={1}>
+                    {hero.artist_name}
+                  </ThemedText>
                   <View style={styles.heroActions}>
                     <TouchableOpacity
                       style={styles.heroPlayBtn}
                       onPress={() => handlePlay(hero, featured)}
                     >
                       <Ionicons name="play" size={15} color="#fff" />
-                      <ThemedText style={styles.heroPlayText}>Play now</ThemedText>
+                      <ThemedText style={styles.heroPlayText}>
+                        Play now
+                      </ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.heroSaveBtn}>
-                      <Ionicons name="heart-outline" size={17} color="#06A0B5" />
+                      <Ionicons
+                        name="heart-outline"
+                        size={17}
+                        color="#06A0B5"
+                      />
                     </TouchableOpacity>
                   </View>
                 </LinearGradient>
@@ -228,7 +283,9 @@ export default function Home() {
           {featured.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <ThemedText style={styles.sectionTitle}>Continue Listening</ThemedText>
+                <ThemedText style={styles.sectionTitle}>
+                  Continue Listening
+                </ThemedText>
                 <TouchableOpacity>
                   <ThemedText style={styles.seeAll}>See all</ThemedText>
                 </TouchableOpacity>
@@ -237,17 +294,29 @@ export default function Home() {
                 {featured.slice(0, 6).map((track) => (
                   <TouchableOpacity
                     key={track.id}
-                    style={[styles.gridItem, currentTrack?.id === track.id && styles.gridItemActive]}
+                    style={[
+                      styles.gridItem,
+                      currentTrack?.id === track.id && styles.gridItemActive,
+                    ]}
                     onPress={() => handlePlay(track, featured)}
                   >
-                    <Image source={{ uri: track.album_image }} style={styles.gridImage} />
-                    <ThemedText style={styles.gridTitle} numberOfLines={1}>{track.name}</ThemedText>
+                    <Image
+                      source={{ uri: track.album_image }}
+                      style={styles.gridImage}
+                    />
+                    <ThemedText style={styles.gridTitle} numberOfLines={1}>
+                      {track.name}
+                    </ThemedText>
                     <View style={styles.gridPlay}>
                       {currentTrack?.id === track.id && isLoading ? (
                         <ActivityIndicator size={11} color="#06A0B5" />
                       ) : (
                         <Ionicons
-                          name={currentTrack?.id === track.id && isPlaying ? "pause" : "play"}
+                          name={
+                            currentTrack?.id === track.id && isPlaying
+                              ? "pause"
+                              : "play"
+                          }
                           size={11}
                           color="#06A0B5"
                         />
@@ -262,7 +331,9 @@ export default function Home() {
           {trending.length > 0 && (
             <View style={[styles.section, { paddingHorizontal: 0 }]}>
               <View style={[styles.sectionHeader, { paddingHorizontal: 20 }]}>
-                <ThemedText style={styles.sectionTitle}>Trending this week</ThemedText>
+                <ThemedText style={styles.sectionTitle}>
+                  Trending this week
+                </ThemedText>
                 <TouchableOpacity>
                   <ThemedText style={styles.seeAll}>See all</ThemedText>
                 </TouchableOpacity>
@@ -270,7 +341,11 @@ export default function Home() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingLeft: 20, gap: 14, paddingRight: 20 }}
+                contentContainerStyle={{
+                  paddingLeft: 20,
+                  gap: 14,
+                  paddingRight: 20,
+                }}
               >
                 {trending.map((track) => (
                   <TouchableOpacity
@@ -278,21 +353,38 @@ export default function Home() {
                     style={styles.trendingCard}
                     onPress={() => handlePlay(track, trending)}
                   >
-                    <Image source={{ uri: track.album_image }} style={styles.trendingImage} />
+                    <Image
+                      source={{ uri: track.album_image }}
+                      style={styles.trendingImage}
+                    />
                     <LinearGradient
                       colors={["transparent", "rgba(0,0,0,0.88)"]}
                       style={styles.trendingGradient}
                     />
                     <View style={styles.trendingInfo}>
-                      <ThemedText style={styles.trendingTitle} numberOfLines={1}>{track.name}</ThemedText>
-                      <ThemedText style={styles.trendingArtist} numberOfLines={1}>{track.artist_name}</ThemedText>
+                      <ThemedText
+                        style={styles.trendingTitle}
+                        numberOfLines={1}
+                      >
+                        {track.name}
+                      </ThemedText>
+                      <ThemedText
+                        style={styles.trendingArtist}
+                        numberOfLines={1}
+                      >
+                        {track.artist_name}
+                      </ThemedText>
                     </View>
                     <TouchableOpacity
                       style={styles.trendingPlayBtn}
                       onPress={() => handlePlay(track, trending)}
                     >
                       <Ionicons
-                        name={currentTrack?.id === track.id && isPlaying ? "pause" : "play"}
+                        name={
+                          currentTrack?.id === track.id && isPlaying
+                            ? "pause"
+                            : "play"
+                        }
                         size={13}
                         color="#fff"
                       />
@@ -314,25 +406,35 @@ export default function Home() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingLeft: 20, gap: 14, paddingRight: 20 }}
+                contentContainerStyle={{
+                  paddingLeft: 20,
+                  gap: 14,
+                  paddingRight: 20,
+                }}
               >
                 {albums.map((album) => (
                   <TouchableOpacity key={album.id} style={styles.mixCard}>
-                    <Image source={{ uri: album.image }} style={styles.mixImage} />
+                    <Image
+                      source={{ uri: album.image }}
+                      style={styles.mixImage}
+                    />
                     <LinearGradient
                       colors={["transparent", "rgba(0,0,0,0.88)"]}
                       style={styles.mixGradient}
                     />
                     <View style={styles.mixInfo}>
-                      <ThemedText style={styles.mixGenre} numberOfLines={1}>{album.artist_name}</ThemedText>
-                      <ThemedText style={styles.mixTitle} numberOfLines={1}>{album.name}</ThemedText>
+                      <ThemedText style={styles.mixGenre} numberOfLines={1}>
+                        {album.artist_name}
+                      </ThemedText>
+                      <ThemedText style={styles.mixTitle} numberOfLines={1}>
+                        {album.name}
+                      </ThemedText>
                     </View>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
           )}
-
         </ScrollView>
       )}
 
@@ -342,29 +444,61 @@ export default function Home() {
           onPress={() => setPlayerVisible(true)}
           activeOpacity={0.9}
         >
-          <Image source={{ uri: currentTrack.album_image }} style={styles.miniImg} />
+          <Image
+            source={{ uri: currentTrack.album_image }}
+            style={styles.miniImg}
+          />
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <ThemedText style={styles.miniTitle} numberOfLines={1}>{currentTrack.name}</ThemedText>
-            <ThemedText style={styles.miniArtist} numberOfLines={1}>{currentTrack.artist_name}</ThemedText>
+            <ThemedText style={styles.miniTitle} numberOfLines={1}>
+              {currentTrack.name}
+            </ThemedText>
+            <ThemedText style={styles.miniArtist} numberOfLines={1}>
+              {currentTrack.artist_name}
+            </ThemedText>
           </View>
-          <TouchableOpacity onPress={(e) => { e.stopPropagation(); playPrev(); }} style={styles.miniControlBtn}>
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              playPrev();
+            }}
+            style={styles.miniControlBtn}
+          >
             <Ionicons name="play-skip-back" size={18} color="#aaa" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={(e) => { e.stopPropagation(); togglePlay(); }} style={styles.miniPlayBtn}>
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
+            style={styles.miniPlayBtn}
+          >
             {isLoading ? (
               <ActivityIndicator size="small" color="#06A0B5" />
             ) : (
-              <Ionicons name={isPlaying ? "pause" : "play"} size={22} color="#fff" />
+              <Ionicons
+                name={isPlaying ? "pause" : "play"}
+                size={22}
+                color="#fff"
+              />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={(e) => { e.stopPropagation(); playNext(); }} style={styles.miniControlBtn}>
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              playNext();
+            }}
+            style={styles.miniControlBtn}
+          >
             <Ionicons name="play-skip-forward" size={18} color="#aaa" />
           </TouchableOpacity>
           <View style={styles.miniProgressBg}>
             <View
               style={[
                 styles.miniProgressFill,
-                { width: `${duration > 0 ? (position / duration) * 100 : 0}%` as any },
+                {
+                  width:
+                    `${duration > 0 ? (position / duration) * 100 : 0}%` as any,
+                },
               ]}
             />
           </View>
@@ -391,73 +525,303 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D" },
-  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
   loadingText: { color: "#555", fontSize: 13 },
 
-  headerWrapper: { backgroundColor: "#0D0D0D", borderBottomWidth: 1, borderBottomColor: "#181818", paddingBottom: 8 },
-  topRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 10 },
+  headerWrapper: {
+    backgroundColor: "#0D0D0D",
+    borderBottomWidth: 1,
+    borderBottomColor: "#181818",
+    paddingBottom: 8,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+  },
   greetingRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   avatarWrapper: { position: "relative" },
-  avatar: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: "#06A0B5" },
-  avatarOnline: { position: "absolute", bottom: 0, right: 0, width: 9, height: 9, borderRadius: 5, backgroundColor: "#06A0B5", borderWidth: 1.5, borderColor: "#0D0D0D" },
-  greeting: { color: "#ffeeee", fontSize: 9, fontWeight: "700", letterSpacing: 1.2 },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: "#06A0B5",
+  },
+  avatarOnline: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: "#06A0B5",
+    borderWidth: 1.5,
+    borderColor: "#0D0D0D",
+  },
+  greeting: {
+    color: "#ffeeee",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+  },
   userName: { color: "#fff", fontSize: 16, fontWeight: "800", marginTop: -1 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 7 },
-  iconBtn: { width: 34, height: 34, borderRadius: 10, backgroundColor: "#181818", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#252525" },
-  notifDot: { position: "absolute", top: 7, right: 7, width: 6, height: 6, borderRadius: 3, backgroundColor: "#06A0B5", zIndex: 1 },
+  iconBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "#181818",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#252525",
+  },
+  notifDot: {
+    position: "absolute",
+    top: 7,
+    right: 7,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#06A0B5",
+    zIndex: 1,
+  },
 
-  searchBar: { flexDirection: "row", alignItems: "center", backgroundColor: "#141414", marginHorizontal: 20, borderRadius: 12, paddingHorizontal: 12, height: 40, borderWidth: 1, borderColor: "#222", marginBottom: 10, gap: 8 },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#141414",
+    marginHorizontal: 20,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#222",
+    marginBottom: 10,
+    gap: 8,
+  },
   searchInput: { flex: 1, color: "#fff", fontSize: 13 },
-  filterBtn: { width: 26, height: 26, borderRadius: 6, backgroundColor: "rgba(6,160,181,0.1)", alignItems: "center", justifyContent: "center" },
+  filterBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 6,
+    backgroundColor: "rgba(6,160,181,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   genreRow: { paddingHorizontal: 20, gap: 8 },
-  chip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 10, backgroundColor: "#141414", borderWidth: 1, borderColor: "#222" },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: "#141414",
+    borderWidth: 1,
+    borderColor: "#222",
+  },
   chipActive: { backgroundColor: "#fff", borderColor: "#fff" },
   chipText: { color: "#555", fontSize: 12, fontWeight: "700" },
   chipTextActive: { color: "#000" },
 
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-start", alignItems: "flex-end", paddingTop: 100, paddingRight: 16 },
-  menuCard: { backgroundColor: "#1C1C1C", borderRadius: 18, padding: 6, width: 230, borderWidth: 1, borderColor: "#2A2A2A", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 20 },
-  menuProfile: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12 },
-  menuAvatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: "#06A0B5" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    paddingTop: 100,
+    paddingRight: 16,
+  },
+  menuCard: {
+    backgroundColor: "#1C1C1C",
+    borderRadius: 18,
+    padding: 6,
+    width: 230,
+    borderWidth: 1,
+    borderColor: "#2A2A2A",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+  menuProfile: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+  },
+  menuAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "#06A0B5",
+  },
   menuName: { color: "#fff", fontSize: 14, fontWeight: "700" },
   menuEmail: { color: "#555", fontSize: 11 },
-  menuDivider: { height: 1, backgroundColor: "#252525", marginHorizontal: 6, marginVertical: 4 },
-  menuItem: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12 },
+  menuDivider: {
+    height: 1,
+    backgroundColor: "#252525",
+    marginHorizontal: 6,
+    marginVertical: 4,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
   menuItemText: { color: "#ccc", fontSize: 14, fontWeight: "500" },
 
   heroSection: { paddingHorizontal: 20, marginBottom: 28 },
   hero: { width: "100%", height: 215 },
-  heroGradient: { flex: 1, borderRadius: 24, padding: 18, justifyContent: "flex-end" },
-  heroBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(6,160,181,0.25)", borderWidth: 1, borderColor: "rgba(6,160,181,0.6)", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, alignSelf: "flex-start", marginBottom: 8 },
-  heroBadgeDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#06A0B5" },
-  heroBadgeText: { color: "#00E5FF", fontSize: 9, fontWeight: "700", letterSpacing: 1.5 },
-  heroTitle: { color: "#fff", fontSize: 22, fontWeight: "800", marginBottom: 3 },
+  heroGradient: {
+    flex: 1,
+    borderRadius: 24,
+    padding: 18,
+    justifyContent: "flex-end",
+  },
+  heroBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(6,160,181,0.25)",
+    borderWidth: 1,
+    borderColor: "rgba(6,160,181,0.6)",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+  heroBadgeDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#06A0B5",
+  },
+  heroBadgeText: {
+    color: "#00E5FF",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+  },
+  heroTitle: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 3,
+  },
   heroSub: { color: "rgba(255,255,255,0.55)", fontSize: 11, marginBottom: 14 },
   heroActions: { flexDirection: "row", alignItems: "center", gap: 10 },
-  heroPlayBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#06A0B5", borderRadius: 22, paddingHorizontal: 18, paddingVertical: 9 },
+  heroPlayBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#06A0B5",
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+  },
   heroPlayText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-  heroSaveBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.08)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+  heroSaveBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
 
   section: { paddingHorizontal: 20, marginBottom: 28 },
-  sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 14 },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
   sectionTitle: { color: "#fff", fontSize: 16, fontWeight: "700" },
   seeAll: { color: "#06A0B5", fontSize: 12, fontWeight: "600" },
 
-  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 10 },
-  gridItem: { width: GRID_ITEM_WIDTH, flexDirection: "row", alignItems: "center", backgroundColor: "#181818", borderRadius: 14, height: 56, borderWidth: 1, borderColor: "#222" },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  gridItem: {
+    width: GRID_ITEM_WIDTH,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#181818",
+    borderRadius: 14,
+    height: 56,
+    borderWidth: 1,
+    borderColor: "#222",
+  },
   gridItemActive: { borderColor: "#06A0B5", backgroundColor: "#1A2A2A" },
-  gridImage: { width: 56, height: 56, borderTopLeftRadius: 13, borderBottomLeftRadius: 13 },
-  gridTitle: { color: "#fff", fontSize: 11, fontWeight: "600", flex: 1, marginLeft: 10, marginRight: 4 },
-  gridPlay: { width: 24, height: 24, borderRadius: 12, backgroundColor: "rgba(6,160,181,0.15)", alignItems: "center", justifyContent: "center", marginRight: 8 },
+  gridImage: {
+    width: 56,
+    height: 56,
+    borderTopLeftRadius: 13,
+    borderBottomLeftRadius: 13,
+  },
+  gridTitle: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "600",
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 4,
+  },
+  gridPlay: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(6,160,181,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
 
-  trendingCard: { width: 140, height: 170, borderRadius: 18, overflow: "hidden" },
+  trendingCard: {
+    width: 140,
+    height: 170,
+    borderRadius: 18,
+    overflow: "hidden",
+  },
   trendingImage: { width: "100%", height: "100%", position: "absolute" },
   trendingGradient: { position: "absolute", width: "100%", height: "100%" },
   trendingInfo: { position: "absolute", bottom: 10, left: 10, right: 10 },
   trendingTitle: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  trendingArtist: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginTop: 1 },
-  trendingPlayBtn: { position: "absolute", top: 9, right: 9, width: 28, height: 28, borderRadius: 14, backgroundColor: "rgba(6,160,181,0.85)", alignItems: "center", justifyContent: "center" },
+  trendingArtist: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 10,
+    marginTop: 1,
+  },
+  trendingPlayBtn: {
+    position: "absolute",
+    top: 9,
+    right: 9,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(6,160,181,0.85)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   mixCard: { width: 155, height: 205, borderRadius: 18, overflow: "hidden" },
   mixImage: { width: "100%", height: "100%", position: "absolute" },
@@ -466,12 +830,47 @@ const styles = StyleSheet.create({
   mixGenre: { color: "rgba(255,255,255,0.5)", fontSize: 9, marginBottom: 2 },
   mixTitle: { color: "#fff", fontSize: 14, fontWeight: "700" },
 
-  miniPlayer: { position: "absolute", left: 10, right: 10, height: 62, backgroundColor: "#1C1C1C", borderRadius: 16, flexDirection: "row", alignItems: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: "#2A2A2A", elevation: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, overflow: "hidden" },
+  miniPlayer: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    height: 62,
+    backgroundColor: "#1C1C1C",
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#2A2A2A",
+    elevation: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    overflow: "hidden",
+  },
   miniImg: { width: 44, height: 44, borderRadius: 10 },
   miniTitle: { color: "#fff", fontSize: 13, fontWeight: "700" },
   miniArtist: { color: "#666", fontSize: 11, marginTop: 1 },
-  miniControlBtn: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
-  miniPlayBtn: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
-  miniProgressBg: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: "#252525" },
+  miniControlBtn: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  miniPlayBtn: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  miniProgressBg: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: "#252525",
+  },
   miniProgressFill: { height: "100%", backgroundColor: "#06A0B5" },
 });
