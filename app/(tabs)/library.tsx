@@ -1,12 +1,21 @@
-import { useState } from "react";
-import { View, ScrollView, TouchableOpacity, FlatList, Image } from "react-native";
+import { useState, useCallback } from "react";
+import { View, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ui/ThemedText";
 
+// Type pour les éléments de la bibliothèque
+interface LibraryItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  isLocal: boolean;
+}
+
 const FILTERS = ["Playlists", "Artists", "Albums", "Downloaded"];
 
-const MOCK_LIBRARY = [
+const MOCK_LIBRARY: LibraryItem[] = [
   { id: "1", title: "Liked Songs", subtitle: "Playlist • 142 songs", icon: "heart", isLocal: false },
   { id: "2", title: "Daily Mix 1", subtitle: "By musium • Repetitive hits", icon: "disc-outline", isLocal: false },
   { id: "3", title: "Rust & Chill", subtitle: "Playlist • 45 tracks", icon: "musical-notes-outline", isLocal: false },
@@ -17,9 +26,35 @@ const MOCK_LIBRARY = [
 export default function Library() {
   const [activeFilter, setActiveFilter] = useState("Playlists");
 
+  // Optimisation de la FlatList avec useCallback
+  const renderItem = useCallback(({ item }: { item: LibraryItem }) => (
+    <TouchableOpacity className="flex-row items-center justify-between py-3 mb-2">
+      <View className="flex-row items-center gap-4">
+        <View className="w-14 h-14 rounded-xl bg-[#242424] items-center justify-center border border-[#333]">
+          <Ionicons
+            name={item.icon}
+            size={24}
+            color={item.title === "Liked Songs" ? "#FF003C" : "#06A0B5"}
+          />
+        </View>
+        <View>
+          <ThemedText variant="body" className="text-white font-semibold text-base">
+            {item.title}
+          </ThemedText>
+          <View className="flex-row items-center gap-1.5 mt-0.5">
+            {item.isLocal && <Ionicons name="checkmark-circle" size={12} color="#06A0B5" />}
+            <ThemedText variant="caption" className="text-muted text-xs">
+              {item.subtitle}
+            </ThemedText>
+          </View>
+        </View>
+      </View>
+      <Ionicons name="chevron-forward" size={16} color="#4A4A4A" />
+    </TouchableOpacity>
+  ), []);
+
   return (
     <SafeAreaView className="flex-1 bg-background px-5">
-
       {/* Header */}
       <View className="flex-row justify-between items-center mt-4 mb-6">
         <View className="flex-row items-center gap-3">
@@ -42,7 +77,11 @@ export default function Library() {
 
       {/* Quick Filters */}
       <View className="mb-6">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8 }}
+        >
           {FILTERS.map((filter) => {
             const isActive = activeFilter === filter;
             return (
@@ -71,6 +110,7 @@ export default function Library() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
+        renderItem={renderItem}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center pt-20">
             <Ionicons name="folder-open-outline" size={48} color="#8A9A9D" />
@@ -79,33 +119,7 @@ export default function Library() {
             </ThemedText>
           </View>
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity className="flex-row items-center justify-between py-3 mb-2">
-            <View className="flex-row items-center gap-4">
-              <View className="w-14 h-14 rounded-xl bg-[#242424] items-center justify-center border border-[#333]">
-                <Ionicons
-                  name={item.icon as any}
-                  size={24}
-                  color={item.title === "Liked Songs" ? "#FF003C" : "#06A0B5"}
-                />
-              </View>
-              <View>
-                <ThemedText variant="body" className="text-white font-semibold text-base">
-                  {item.title}
-                </ThemedText>
-                <View className="flex-row items-center gap-1.5 mt-0.5">
-                  {item.isLocal && <Ionicons name="checkmark-circle" size={12} color="#06A0B5" />}
-                  <ThemedText variant="caption" className="text-muted text-xs">
-                    {item.subtitle}
-                  </ThemedText>
-                </View>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color="#4A4A4A" />
-          </TouchableOpacity>
-        )}
       />
-
     </SafeAreaView>
   );
 }
