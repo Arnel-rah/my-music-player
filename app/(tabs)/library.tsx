@@ -211,7 +211,6 @@ function SectionLabel({ label }: { label: string }) {
   );
 }
 
-// ─── Main screen ─────────────────────────────────────────────────────────────
 export default function Library() {
   const [activeFilter, setActiveFilter] = useState("Playlists");
 
@@ -306,8 +305,6 @@ export default function Library() {
           })}
         </ScrollView>
       </View>
-
-      {/* List */}
       <FlatList
         data={MOCK_LIBRARY}
         keyExtractor={(item) => item.id}
