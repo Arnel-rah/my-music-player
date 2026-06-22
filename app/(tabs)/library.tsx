@@ -455,7 +455,21 @@ function LibraryListItem({ item }: { item: LibraryItem }) {
           color="rgba(255,255,255,0.2)"
         />
       </View>
-    </SpringPress>
+
+      <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.2)" />
+    </TouchableOpacity>
+  );
+}
+
+function SectionLabel({ label }: { label: string }) {
+  return (
+    <ThemedText
+      variant="caption"
+      className="text-muted text-xs font-semibold tracking-widest uppercase mb-3"
+      style={{ letterSpacing: 0.8 }}
+    >
+      {label}
+    </ThemedText>
   );
 }
 
@@ -494,7 +508,6 @@ export default function Library() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#111", paddingHorizontal: 20 }}>
-      {/* Header */}
       <View
         style={{
           flexDirection: "row",
