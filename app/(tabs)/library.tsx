@@ -37,7 +37,6 @@ interface PinnedItem {
   accentColor: string;
 }
 
-// --- DATA ---
 const FILTERS = ["Playlists", "Artists", "Albums", "Downloaded"];
 
 const PINNED_ITEMS: PinnedItem[] = [
@@ -108,9 +107,7 @@ const MOCK_LIBRARY: LibraryItem[] = [
   },
 ];
 
-// --- COMPONENTS ---
 
-// Animation de rebond tactile
 function SpringPress({
   children,
   onPress,
@@ -155,7 +152,6 @@ function SpringPress({
   );
 }
 
-// Égaliseur audio animé pour le titre en cours de lecture
 function AnimatedEqualizer({ color = "#00F2FE" }: { color?: string }) {
   const bar1 = useRef(new Animated.Value(0.3)).current;
   const bar2 = useRef(new Animated.Value(0.8)).current;
@@ -203,7 +199,6 @@ function AnimatedEqualizer({ color = "#00F2FE" }: { color?: string }) {
   );
 }
 
-// Skeletons de chargement
 function SkeletonBox({
   width,
   height,
