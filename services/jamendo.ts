@@ -22,45 +22,69 @@ export interface JamendoAlbum {
   releasedate: string;
 }
 
-export const getFeaturedTracks = async (tag?: string): Promise<JamendoTrack[]> => {
-  const genreFilter = tag ? `&tags=${encodeURIComponent(tag)}` : "";
-  const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_total${genreFilter}&offset=${getRandomOffset()}`
-  );
-  const data = await res.json();
+interface JamendoResponse<T> {
+  results?: T[];
+}
+
+const fetchJamendo = async <T>(
+  endpoint: "tracks" | "albums",
+  params: Record<string, string | number | undefined>
+): Promise<T[]> => {
+  const searchParams = new URLSearchParams({
+    client_id: CLIENT_ID,
+    format: "json",
+  });
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+
+  const res = await fetch(`${BASE}/${endpoint}/?${searchParams.toString()}`);
+
+  if (!res.ok) {
+    throw new Error(`Jamendo API error (${endpoint}): ${res.status} ${res.statusText}`);
+  }
+
+  const data: JamendoResponse<T> = await res.json();
   return data.results ?? [];
 };
 
-export const getNewAlbums = async (tag?: string): Promise<JamendoAlbum[]> => {
-  const genreFilter = tag ? `&tags=${encodeURIComponent(tag)}` : "";
-  const res = await fetch(
-    `${BASE}/albums/?client_id=${CLIENT_ID}&format=json&limit=10&orderby=releasedate_desc${genreFilter}&offset=${getRandomOffset()}`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
+export const getFeaturedTracks = (tag?: string): Promise<JamendoTrack[]> =>
+  fetchJamendo<JamendoTrack>("tracks", {
+    limit: 10,
+    boost: "popularity_total",
+    tags: tag,
+    offset: getRandomOffset(),
+  });
 
-export const getTrendingTracks = async (tag?: string): Promise<JamendoTrack[]> => {
-  const genreFilter = tag ? `&tags=${encodeURIComponent(tag)}` : "";
-  const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=10&boost=popularity_week${genreFilter}&offset=${getRandomOffset()}`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
+export const getNewAlbums = (tag?: string): Promise<JamendoAlbum[]> =>
+  fetchJamendo<JamendoAlbum>("albums", {
+    limit: 10,
+    orderby: "releasedate_desc",
+    tags: tag,
+    offset: getRandomOffset(),
+  });
 
-export const getTracksByGenre = async (genre: string): Promise<JamendoTrack[]> => {
-  const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=20&tags=${encodeURIComponent(genre)}&boost=popularity_total&offset=${getRandomOffset()}`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
+export const getTrendingTracks = (tag?: string): Promise<JamendoTrack[]> =>
+  fetchJamendo<JamendoTrack>("tracks", {
+    limit: 10,
+    boost: "popularity_week",
+    tags: tag,
+    offset: getRandomOffset(),
+  });
 
-export const searchTracks = async (query: string): Promise<JamendoTrack[]> => {
-  const res = await fetch(
-    `${BASE}/tracks/?client_id=${CLIENT_ID}&format=json&limit=20&search=${encodeURIComponent(query)}`
-  );
-  const data = await res.json();
-  return data.results ?? [];
-};
+export const getTracksByGenre = (genre: string): Promise<JamendoTrack[]> =>
+  fetchJamendo<JamendoTrack>("tracks", {
+    limit: 20,
+    tags: genre,
+    boost: "popularity_total",
+    offset: getRandomOffset(),
+  });
+
+export const searchTracks = (query: string): Promise<JamendoTrack[]> =>
+  fetchJamendo<JamendoTrack>("tracks", {
+    limit: 20,
+    search: query,
+  });
